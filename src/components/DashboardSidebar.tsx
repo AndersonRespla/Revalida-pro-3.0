@@ -23,15 +23,17 @@ import {
   BarChart3, 
   Settings, 
   Bell,
-  Sparkles
+  Sparkles,
+  MessageSquare
 } from "lucide-react";
 
 const navigationItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Estações OSCE", url: "/dashboard/stations", icon: Stethoscope },
-  { title: "IA Independente", url: "/dashboard/ai", icon: Brain },
+  { title: "Estações OSCE", url: "/stations", icon: Stethoscope },
+  { title: "IA Independente", url: "/simulation", icon: Brain },
+  { title: "ChatGPT", url: "/dashboard/chatgpt", icon: MessageSquare },
   { title: "Colaborativo", url: "/dashboard/collaborative", icon: Users },
-  { title: "Modo Híbrido", url: "/dashboard/hybrid", icon: Zap },
+  { title: "Modo Híbrido", url: "/simulation/hybrid", icon: Zap },
   { title: "Biblioteca", url: "/dashboard/library", icon: BookOpen },
   { title: "Relatórios", url: "/dashboard/reports", icon: BarChart3 },
 ];
@@ -59,19 +61,18 @@ export function DashboardSidebar() {
       className={`${collapsed ? "w-16" : "w-64"} transition-all duration-300 border-r border-border/50 bg-background/95 backdrop-blur-sm`}
     >
       {/* Header */}
-      <div className="flex h-16 items-center justify-between px-4 border-b border-border/50">
-        {!collapsed && (
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Stethoscope className="h-5 w-5 text-primary" />
-            </div>
+      <div className="flex h-16 items-center border-b border-border/50 px-4">
+        <div className="flex items-center gap-2">
+          <div className="p-2 rounded-lg bg-primary/10">
+            <Stethoscope className="h-5 w-5 text-primary" />
+          </div>
+          {!collapsed && (
             <div className="flex flex-col">
               <span className="text-sm font-bold">Revalida Pro</span>
               <span className="text-xs text-muted-foreground">v3.0</span>
             </div>
-          </div>
-        )}
-        <SidebarTrigger className="h-8 w-8" />
+          )}
+        </div>
       </div>
 
       <SidebarContent className="px-3 py-4">

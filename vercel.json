@@ -1,0 +1,31 @@
+{
+  "functions": {
+    "api/transcribe.ts": {
+      "maxDuration": 30
+    },
+    "api/feedback.ts": {
+      "maxDuration": 30
+    },
+    "api/audio/finish.ts": {
+      "maxDuration": 60
+    },
+    "api/chatgpt.ts": {
+      "maxDuration": 30
+    },
+    "api/chatgpt-web.ts": {
+      "maxDuration": 30
+    },
+    "api/audio/start.ts": {
+      "maxDuration": 10
+    },
+    "api/audio/chunk.ts": {
+      "maxDuration": 10
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    }
+  ]
+}

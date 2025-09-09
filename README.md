@@ -50,19 +50,81 @@ npm run dev
 - Click on "New codespace" to launch a new Codespace environment.
 - Edit files directly within the Codespace and commit and push your changes once you're done.
 
-## What technologies are used for this project?
+## 📱 Funcionalidades
 
-This project is built with:
+- **Simulação OSCE**: 3 estações de 10 minutos cada
+- **Estações OSCE**: Página dedicada com listagem, material teórico e metodologia
+- **Admin de Estações**: Interface para cadastrar/editar estações com critérios e pesos
+- **Gravação de Áudio**: MediaRecorder integrado
+- **Transcrição**: OpenAI Whisper em tempo real
+- **Feedback Personalizado**: Análise PEP/OSCE com destaques visuais
+- **Agentes ElevenLabs**: Moderador e pacientes conversacionais
+- **Persistência**: Supabase Storage + PostgreSQL
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🔧 Tecnologias
 
-## How can I deploy this project?
+- **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
+- **Backend**: Vercel Functions (Serverless)
+- **Banco**: Supabase (PostgreSQL + Storage)
+- **IA**: OpenAI Whisper + GPT-4
+- **Agentes**: ElevenLabs Convai
 
-Simply open [Lovable](https://lovable.dev/projects/92133003-9dd6-4944-8691-86464d79b8aa) and click on Share -> Publish.
+## 📁 Estrutura
+
+```
+├── api/                    # Funções serverless Vercel
+│   ├── transcribe.ts      # Transcrição Whisper
+│   ├── feedback.ts        # Geração de feedback
+│   └── _supabase.ts       # Cliente admin Supabase
+├── src/
+│   ├── pages/
+│   │   ├── Simulation.tsx # Página principal da simulação
+│   │   ├── Stations.tsx   # Página de estações OSCE
+│   │   └── AdminStations.tsx # Admin para cadastrar estações
+│   └── components/        # Componentes UI
+├── vercel.json            # Configuração Vercel
+├── supabase_stations.sql  # SQL para tabela de estações
+└── package.json           # Dependências
+```
+
+## 🎯 Como Testar / Deploy
+
+### 1) Variáveis de Ambiente
+Crie `.env.local` (local) e configure em `Vercel > Settings > Environment Variables`:
+
+```
+OPENAI_API_KEY=...
+SUPABASE_URL=...
+SUPABASE_SERVICE_ROLE_KEY=...
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+```
+
+### 2) Supabase (SQLs iniciais)
+Execute no Supabase:
+- `api/setup/audio-recordings.sql`
+- `api/setup/simulations.sql`
+- `api/setup/rls-policies.sql`
+
+### 3) Rodar localmente
+```
+npm install
+npm run dev
+```
+
+### 4) Deploy via GitHub → Vercel
+1. Suba este repositório para o GitHub
+2. Em `Vercel > New Project`, importe o repositório
+3. Defina as variáveis acima
+4. Deploy
+
+### 5) Rotas principais
+- `/` Landing com login/cadastro (modal)
+- `/dashboard` Dashboard
+- `/dashboard/settings` Configurações
+- `/dashboard/schedule` Agendar metas
+- `/stations` Estações OSCE
+- `/simulation` Fluxos de simulação
 
 ## Can I connect a custom domain to my Lovable project?
 

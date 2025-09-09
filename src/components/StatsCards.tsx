@@ -8,25 +8,44 @@ import {
   Brain, 
   Users,
   Stethoscope,
-  Heart
+  Heart,
+  Loader2
 } from "lucide-react";
+import { useUserStats } from "@/hooks/useUserStats";
+import { useAuth } from "@/hooks/useAuth";
 
 export function StatsCards() {
-  const stats = [
+  const { user } = useAuth();
+  const { data: userStats, isLoading, isError } = useUserStats(user?.id || '');
+
+  // Dados de fallback para casos de erro ou carregamento
+  const fallbackStats = {
+    progressPercentage: 0,
+    nextGoalPercentage: 85,
+    studyTimeThisWeek: 0,
+    ranking: null,
+    totalUsers: 1,
+    averageScore: 0,
+    sessionsThisWeek: 0
+  };
+
+  const stats = userStats || fallbackStats;
+
+  const statsCards = [
     {
       title: "Progresso Geral",
-      value: "73%",
-      change: "+12%",
-      changeType: "positive" as const,
-      description: "Desde o último mês",
+      value: `${stats.progressPercentage}%`,
+      change: stats.sessionsThisWeek > 0 ? `+${stats.sessionsThisWeek} sessões` : "Nenhuma atividade",
+      changeType: stats.sessionsThisWeek > 0 ? "positive" as const : "neutral" as const,
+      description: "Esta semana",
       icon: TrendingUp,
       gradient: "from-primary/20 to-primary/5",
       iconColor: "text-primary"
     },
     {
       title: "Próxima Meta",
-      value: "85%",
-      change: "12% restante",
+      value: `${stats.nextGoalPercentage}%`,
+      change: `${Math.max(0, stats.nextGoalPercentage - stats.progressPercentage)}% restante`,
       changeType: "neutral" as const,
       description: "Para aprovação",
       icon: Target,
@@ -35,9 +54,9 @@ export function StatsCards() {
     },
     {
       title: "Tempo de Estudo",
-      value: "47h",
-      change: "+8h",
-      changeType: "positive" as const,
+      value: `${stats.studyTimeThisWeek}h`,
+      change: stats.studyTimeThisWeek > 0 ? "Ativo" : "Sem atividade",
+      changeType: stats.studyTimeThisWeek > 10 ? "positive" as const : "neutral" as const,
       description: "Esta semana",
       icon: Clock,
       gradient: "from-accent/20 to-accent/5",
@@ -45,19 +64,53 @@ export function StatsCards() {
     },
     {
       title: "Ranking",
-      value: "#27",
-      change: "↑15",
-      changeType: "positive" as const,
-      description: "Entre 2.847 estudantes",
+      value: stats.ranking ? `#${stats.ranking}` : "N/A",
+      change: stats.ranking ? `Top ${Math.round(((stats.totalUsers - stats.ranking + 1) / stats.totalUsers) * 100)}%` : "Sem dados",
+      changeType: stats.ranking && stats.ranking <= stats.totalUsers * 0.3 ? "positive" as const : "neutral" as const,
+      description: `Entre ${stats.totalUsers} estudantes`,
       icon: Trophy,
       gradient: "from-yellow-500/20 to-yellow-500/5",
       iconColor: "text-yellow-500"
     }
   ];
 
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[1, 2, 3, 4].map((index) => (
+          <Card key={index} className="card-medical p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2 flex-1">
+                <div className="h-4 bg-muted animate-pulse rounded w-24"></div>
+                <div className="h-8 bg-muted animate-pulse rounded w-16"></div>
+                <div className="h-4 bg-muted animate-pulse rounded w-20"></div>
+                <div className="h-3 bg-muted animate-pulse rounded w-32"></div>
+              </div>
+              <div className="p-3 rounded-lg bg-muted animate-pulse">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="card-medical p-6 col-span-full">
+          <div className="text-center text-muted-foreground">
+            <p>Erro ao carregar estatísticas</p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {stats.map((stat, index) => (
+      {statsCards.map((stat, index) => (
         <Card key={index} className="card-medical p-6 group">
           <div className="flex items-start justify-between">
             <div className="space-y-2">
@@ -95,41 +148,45 @@ export function QuickAccessCards() {
     {
       title: "IA Independente",
       subtitle: "Treine sozinho agora",
-      description: "200+ casos disponíveis",
+      description: "",
       icon: Brain,
       color: "primary",
-      available: true
+      available: true,
+      href: "/simulation/study"
     },
     {
       title: "Sessão Colaborativa",
-      subtitle: "3 estudantes online",
-      description: "Próxima sessão às 14:30",
+      subtitle: "Criar/entrar em sala",
+      description: "",
       icon: Users,
       color: "secondary",
-      available: true
+      available: true,
+      href: "/dashboard/collaborative"
     },
     {
-      title: "Estação Cardiologia",
-      subtitle: "Recomendado para você",
-      description: "Baseado no seu desempenho",
-      icon: Heart,
-      color: "destructive",
-      available: true
-    },
-    {
-      title: "OSCE Completo",
-      subtitle: "Simulação realística",
-      description: "5 estações • 90 minutos",
+      title: "Modo Híbrido",
+      subtitle: "Iniciar treino híbrido",
+      description: "",
       icon: Stethoscope,
       color: "accent",
-      available: false
+      available: true,
+      href: "/simulation/hybrid"
+    },
+    {
+      title: "Biblioteca",
+      subtitle: "Materiais de estudo",
+      description: "",
+      icon: Heart,
+      color: "destructive",
+      available: true,
+      href: "/dashboard/library"
     }
   ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {quickAccess.map((item, index) => (
-        <Card key={index} className={`card-medical p-6 cursor-pointer group ${!item.available ? 'opacity-60' : ''}`}>
+        <Card key={index} className={`card-medical p-6 cursor-pointer group ${!item.available ? 'opacity-60' : ''}`} onClick={() => { if (item.href) window.location.href = item.href; }}>
           <div className="flex items-start gap-4">
             <div className={`p-3 rounded-lg bg-${item.color}/20 group-hover:scale-110 transition-transform duration-200`}>
               <item.icon className={`h-6 w-6 text-${item.color}`} />

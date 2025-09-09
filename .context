@@ -1,0 +1,166 @@
+# �� REVALIDA PRO 3.0 - GUIA DE DESENVOLVIMENTO
+
+## �� **VISÃO DO PROJETO**
+Somos a **PRIMEIRA PLATAFORMA HÍBRIDA** de simulação OSCE do mundo, combinando:
+- 🤖 **Modo IA Independente** (24/7 sem dependência)
+- 🤝 **Modo Colaborativo** (treino entre usuários)
+- �� **Modo Híbrido** (combina os dois modos)
+
+## 🏥 **CONTEXTO DE MERCADO**
+- **Nicho**: Estudantes preparando para o Revalida (Brasil)
+- **Expansão**: OSCE global (MIR, STEPS, etc.)
+- **Diferencial**: Única plataforma com os 3 modos
+- **Validação**: Aprovados pela ElevenLabs
+
+## 🎮 **FUNCIONALIDADES CORE**
+
+### **1. Modo IA Independente**
+- IA conversacional 24/7
+- 200 casos clínicos OSCE estruturados
+- Feedback automático e personalizado
+- Reconhecimento de voz
+- Progresso adaptativo
+
+### **2. Modo Colaborativo**
+- Usuários treinam entre si
+- Sistema de matchmaking inteligente
+- Salas virtuais em tempo real
+- Checklist compartilhado
+- Feedback humano
+
+### **3. Modo Híbrido**
+- IA prepara → Humano valida
+- Transição automática entre modos
+- Feedback combinado
+- Experiência otimizada
+
+## 🏗️ **ARQUITETURA TÉCNICA**
+
+### **Stack Atual**
+- React 18 + TypeScript + Vite
+- Tailwind CSS + shadcn/ui + Radix UI
+- TanStack React Query
+- Supabase (PostgreSQL + Realtime)
+
+### **Estrutura de Dados**
+```sql
+-- Tabelas principais
+users (perfis médicos)
+stations (200 casos OSCE)
+simulations (sessões de treino)
+ai_sessions (sessões com IA)
+collaborative_sessions (sessões colaborativas)
+progress_tracking (acompanhamento)
+feedback_system (avaliações)
+user_preferences (configurações)
+station_ratings (avaliações das estações)
+ai_conversations (histórico de IA)
+user_analytics (métricas de uso)
+```
+
+## 🎨 **DESIGN SYSTEM**
+
+### **Tema Premium Médico**
+- **Cores**: Azul médico, verde saúde, branco premium
+- **Estilo**: GitHub-like (navegação compacta)
+- **Modo**: Escuro por padrão
+- **Responsivo**: Mobile-first
+
+### **Componentes Principais**
+- Sidebar de navegação compacta
+- Dashboard com cards de estatísticas
+- Sistema de onboarding intuitivo
+- Biblioteca de estações OSCE
+- Interface de simulação em tempo real
+
+## �� **ROADMAP DE DESENVOLVIMENTO**
+
+### **Fase 1: MVP da 3.0** ✅
+- [x] Landing page premium
+- [x] Sistema de autenticação
+- [x] Dashboard básico
+
+### **Fase 2: Modos de Treino** 🔄
+- [ ] Modo IA independente
+- [ ] Modo colaborativo
+- [ ] Modo híbrido
+- [ ] Sistema de matchmaking
+
+### **Fase 3: Funcionalidades Avançadas** 📋
+- [ ] Analytics e progresso
+- [ ] Sistema de gamificação
+- [ ] Comunidade médica
+- [ ] Certificados digitais
+
+## �� **MODELO DE NEGÓCIO**
+
+### **Acesso Gratuito**
+- **Estudantes voluntários**: Acesso completo + ChatGPT
+- **Treinadores**: Acesso premium + benefícios
+- **Incentivo**: Construir comunidade médica
+
+### **Monetização**
+- **Plano Básico**: Limitado (gratuito)
+- **Plano Pro**: Acesso completo + IA avançada
+- **Plano Enterprise**: Instituições médicas
+
+## 👥 **EQUIPE STARTUP**
+
+### **CEO**: Anderson Resplandes
+- Estudante de medicina (6º ano)
+- Faculdade Barceló - Buenos Aires
+- Experiência pessoal com Revalida
+
+### **Recrutamento Ativo**
+- **Desenvolvedores Full-Stack**
+- **Designers UI/UX**
+- **Especialistas em IA**
+- **Médicos consultores**
+
+## 🎯 **OBJETIVOS IMEDIATOS**
+
+### **1. Aplicação Funcional**
+- Dashboard premium funcionando
+- Sistema de navegação entre modos
+- Biblioteca de estações acessível
+
+### **2. Modo Colaborativo**
+- Sistema de salas virtuais
+- Matchmaking de usuários
+- Checklist compartilhado em tempo real
+
+### **3. Integração IA**
+- Chat conversacional funcional
+- Feedback automático
+- Progresso adaptativo
+
+## 🔧 **COMO CONTRIBUIR**
+
+### **Para Desenvolvedores**
+1. Ler este guia completamente
+2. Entender a arquitetura existente
+3. Implementar funcionalidades seguindo padrões
+4. Manter consistência com design system
+
+### **Para Designers**
+1. Seguir tema premium médico
+2. Manter navegação estilo GitHub
+3. Focar em UX intuitiva
+4. Priorizar responsividade
+
+### **Para Especialistas em IA**
+1. Integrar com OpenAI/Claude
+2. Desenvolver algoritmos de feedback
+3. Otimizar conversação médica
+4. Implementar aprendizado adaptativo
+
+## �� **CONTATO E SUPORTE**
+
+- **CEO**: Anderson Resplandes
+- **Email**: [email]
+- **WhatsApp**: [número]
+- **Repositório**: [link]
+
+## �� **VAMOS REVOLUCIONAR O TREINAMENTO MÉDICO!**
+
+Somos a primeira plataforma híbrida do mundo e vamos dominar o mercado de simulação OSCE!

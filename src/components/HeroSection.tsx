@@ -1,10 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Brain, Users, Zap } from "lucide-react";
-import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-medical-training.jpg";
 
-export function HeroSection() {
+interface HeroSectionProps {
+  onPrimaryCta?: () => void;
+}
+
+export function HeroSection({ onPrimaryCta }: HeroSectionProps) {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background with gradient overlay */}
@@ -33,11 +36,9 @@ export function HeroSection() {
             </div>
 
             <div className="flex flex-wrap gap-4">
-              <Button variant="medical" size="lg" className="text-lg px-8 py-4" asChild>
-                <Link to="/dashboard">
-                  Começar Treinamento
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
+              <Button variant="medical" size="lg" className="text-lg px-8 py-4" onClick={onPrimaryCta}>
+                Começar Treinamento
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button variant="medical-outline" size="lg" className="text-lg px-8 py-4">
                 Ver Demonstração

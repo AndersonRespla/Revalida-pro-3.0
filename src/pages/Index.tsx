@@ -6,18 +6,32 @@ import { ProblemSection } from "@/components/ProblemSection";
 import { SolutionSection } from "@/components/SolutionSection";
 import { AppScreensSection } from "@/components/AppScreensSection";
 import { CTASection } from "@/components/CTASection";
+import { useState } from "react";
+import { AuthModal } from "@/components/AuthModal";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const [authOpen, setAuthOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const handlePrimaryCta = () => {
+    if (user) navigate('/dashboard');
+    else setAuthOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
+      <Navigation onOpenAuth={() => setAuthOpen(true)} />
       <div className="pt-20">
-        <HeroSection />
+        <HeroSection onPrimaryCta={handlePrimaryCta} />
         <ProblemSection />
         <SolutionSection />
         <AppScreensSection />
         <CTASection />
       </div>
+      <AuthModal open={authOpen} onOpenChange={setAuthOpen} onSuccess={() => navigate('/dashboard')} />
     </div>
   );
 };

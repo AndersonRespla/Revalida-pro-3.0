@@ -2,7 +2,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export function Navigation() {
+interface NavigationProps {
+  onOpenAuth?: () => void;
+}
+
+export function Navigation({ onOpenAuth }: NavigationProps) {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/50">
       <div className="container mx-auto px-6 py-4">
@@ -18,11 +22,9 @@ export function Navigation() {
             <Button variant="ghost" asChild>
               <Link to="/dashboard">Dashboard</Link>
             </Button>
-            <Button variant="medical" asChild>
-              <Link to="/dashboard">
-                Entrar
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
+            <Button variant="medical" onClick={onOpenAuth}>
+              Entrar
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </div>

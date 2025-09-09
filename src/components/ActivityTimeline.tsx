@@ -9,67 +9,92 @@ import {
   Brain,
   Target,
   TrendingUp,
-  ExternalLink
+  ExternalLink,
+  Loader2,
+  Stethoscope
 } from "lucide-react";
+import { useUserActivity } from "@/hooks/useUserStats";
+import { useAuth } from "@/hooks/useAuth";
+
+// Função para mapear tipo de sessão para ícone
+function getActivityIcon(sessionType: string) {
+  switch (sessionType) {
+    case 'simulation_exam':
+      return Stethoscope;
+    case 'simulation_study':
+      return Brain;
+    case 'collaborative':
+      return Users;
+    case 'ai_chat':
+      return Brain;
+    default:
+      return CheckCircle;
+  }
+}
+
+// Função para mapear tipo de sessão para cor
+function getActivityColor(sessionType: string) {
+  switch (sessionType) {
+    case 'simulation_exam':
+      return { iconColor: "text-primary", bgColor: "bg-primary/20" };
+    case 'simulation_study':
+      return { iconColor: "text-secondary", bgColor: "bg-secondary/20" };
+    case 'collaborative':
+      return { iconColor: "text-accent", bgColor: "bg-accent/20" };
+    case 'ai_chat':
+      return { iconColor: "text-blue-500", bgColor: "bg-blue-500/20" };
+    default:
+      return { iconColor: "text-muted-foreground", bgColor: "bg-muted/20" };
+  }
+}
 
 export function ActivityTimeline() {
-  const activities = [
-    {
-      id: 1,
-      type: "completion",
-      title: "Estação Cardiologia",
-      description: "Caso: Infarto Agudo do Miocárdio",
-      score: "87%",
-      time: "Há 2 horas",
-      icon: CheckCircle,
-      iconColor: "text-secondary",
-      bgColor: "bg-secondary/20"
-    },
-    {
-      id: 2,
-      type: "collaboration",
-      title: "Sessão Colaborativa",
-      description: "Grupo: Medicina Interna - 4 participantes",
-      score: "Participação ativa",
-      time: "Ontem às 14:30",
-      icon: Users,
-      iconColor: "text-primary",
-      bgColor: "bg-primary/20"
-    },
-    {
-      id: 3,
-      type: "ai_training",
-      title: "IA Independente",
-      description: "5 casos de Pneumologia concluídos",
-      score: "Média: 82%",
-      time: "2 dias atrás",
-      icon: Brain,
-      iconColor: "text-accent",
-      bgColor: "bg-accent/20"
-    },
-    {
-      id: 4,
-      type: "milestone",
-      title: "Meta Alcançada",
-      description: "Completou 100 casos OSCE",
-      score: "Conquista desbloqueada",
-      time: "3 dias atrás",
-      icon: Target,
-      iconColor: "text-yellow-500",
-      bgColor: "bg-yellow-500/20"
-    },
-    {
-      id: 5,
-      type: "improvement",
-      title: "Melhoria de Performance",
-      description: "Neurologia: 65% → 78%",
-      score: "+13%",
-      time: "1 semana atrás",
-      icon: TrendingUp,
-      iconColor: "text-secondary",
-      bgColor: "bg-secondary/20"
-    }
-  ];
+  const { user } = useAuth();
+  const { data: activities, isLoading, isError } = useUserActivity(user?.id || '', 5);
+
+  if (isLoading) {
+    return (
+      <Card className="card-medical p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold">Atividade Recente</h3>
+          <Loader2 className="h-4 w-4 animate-spin" />
+        </div>
+        <div className="space-y-4">
+          {[1, 2, 3].map((index) => (
+            <div key={index} className="flex items-start gap-4">
+              <div className="p-2 rounded-full bg-muted animate-pulse">
+                <div className="h-4 w-4" />
+              </div>
+              <div className="flex-1 min-w-0 pb-4 space-y-2">
+                <div className="h-4 bg-muted animate-pulse rounded w-32"></div>
+                <div className="h-3 bg-muted animate-pulse rounded w-48"></div>
+                <div className="h-3 bg-muted animate-pulse rounded w-24"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    );
+  }
+
+  if (isError || !activities || activities.length === 0) {
+    return (
+      <Card className="card-medical p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold">Atividade Recente</h3>
+          <Button variant="ghost" size="sm" className="gap-2">
+            Ver Todas
+            <ExternalLink className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="text-center py-8 text-muted-foreground">
+          <AlertCircle className="h-8 w-8 mx-auto mb-2" />
+          <p>Nenhuma atividade recente</p>
+          <p className="text-sm">Comece uma simulação para ver seu progresso aqui</p>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="card-medical p-6">
@@ -82,42 +107,50 @@ export function ActivityTimeline() {
       </div>
 
       <div className="space-y-4">
-        {activities.map((activity, index) => (
-          <div key={activity.id} className="flex items-start gap-4 group">
-            {/* Timeline line */}
-            <div className="relative flex flex-col items-center">
-              <div className={`p-2 rounded-full ${activity.bgColor} group-hover:scale-110 transition-transform duration-200`}>
-                <activity.icon className={`h-4 w-4 ${activity.iconColor}`} />
+        {activities.map((activity, index) => {
+          const Icon = getActivityIcon(activity.session_type);
+          const colors = getActivityColor(activity.session_type);
+          
+          return (
+            <div key={activity.id} className="flex items-start gap-4 group">
+              {/* Timeline line */}
+              <div className="relative flex flex-col items-center">
+                <div className={`p-2 rounded-full ${colors.bgColor} group-hover:scale-110 transition-transform duration-200`}>
+                  <Icon className={`h-4 w-4 ${colors.iconColor}`} />
+                </div>
+                {index < activities.length - 1 && (
+                  <div className="w-px h-8 bg-border/50 mt-2" />
+                )}
               </div>
-              {index < activities.length - 1 && (
-                <div className="w-px h-8 bg-border/50 mt-2" />
-              )}
-            </div>
 
-            {/* Content */}
-            <div className="flex-1 min-w-0 pb-4">
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <h4 className="text-sm font-medium group-hover:text-primary transition-colors">
-                    {activity.title}
-                  </h4>
-                  <p className="text-sm text-muted-foreground">
-                    {activity.description}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-muted/50 text-muted-foreground text-xs">
-                      {activity.score}
-                    </Badge>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      {activity.time}
+              {/* Content */}
+              <div className="flex-1 min-w-0 pb-4">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-medium group-hover:text-primary transition-colors">
+                      {activity.activity_title}
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      {activity.stations_completed && activity.stations_completed > 1 
+                        ? `${activity.stations_completed} estações completadas`
+                        : `Duração: ${activity.duration_minutes || 0} minutos`
+                      }
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-muted/50 text-muted-foreground text-xs">
+                        {activity.score_display}
+                      </Badge>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        {activity.time_relative}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </Card>
   );
