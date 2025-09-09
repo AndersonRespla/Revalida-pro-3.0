@@ -151,7 +151,23 @@ async function handleReportsSpecialties(req: VercelRequest, res: VercelResponse)
   // Implementar lógica de relatórios de especialidades
   const specialties = [];
 
-  return res.status(200).json({ ok: true, specialties });
+  return res.status(200).json({ ok: true, specialtyData: specialties });
+}
+
+async function handleReportsGoals(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { userId } = req.query;
+  if (!userId) {
+    return res.status(400).json({ error: 'Missing userId' });
+  }
+
+  // Implementar lógica de relatórios de metas
+  const goals = [];
+
+  return res.status(200).json({ ok: true, weeklyGoals: goals });
 }
 
 async function handleSessionsSave(req: VercelRequest, res: VercelResponse) {

@@ -58,7 +58,7 @@ export function useUserStats(userId: string = 'demo-user') {
   return useQuery({
     queryKey: ['user-stats', userId],
     queryFn: async (): Promise<UserStats> => {
-      const response = await fetch(`/api/user-stats?userId=${encodeURIComponent(userId)}`);
+      const response = await fetch(`/api/consolidated?action=user-stats&userId=${encodeURIComponent(userId)}`);
       if (!response.ok) {
         throw new Error('Falha ao buscar estatísticas do usuário');
       }
@@ -79,7 +79,7 @@ export function useUserActivity(userId: string = 'demo-user', limit: number = 5)
     queryKey: ['user-activity', userId, limit],
     queryFn: async (): Promise<UserActivity[]> => {
       const response = await fetch(
-        `/api/activity-history?userId=${encodeURIComponent(userId)}&limit=${limit}`
+        `/api/consolidated?action=user-activity&userId=${encodeURIComponent(userId)}&limit=${limit}`
       );
       if (!response.ok) {
         throw new Error('Falha ao buscar atividades do usuário');
@@ -100,7 +100,7 @@ export function useUserProgress(userId: string = 'demo-user') {
   return useQuery({
     queryKey: ['user-progress', userId],
     queryFn: async (): Promise<UserProgress[]> => {
-      const response = await fetch(`/api/user-progress?userId=${encodeURIComponent(userId)}`);
+      const response = await fetch(`/api/consolidated?action=user-progress&userId=${encodeURIComponent(userId)}`);
       if (!response.ok) {
         throw new Error('Falha ao buscar progresso do usuário');
       }
@@ -120,7 +120,7 @@ export function useUserAchievements(userId: string = 'demo-user') {
   return useQuery({
     queryKey: ['user-achievements', userId],
     queryFn: async (): Promise<UserAchievement[]> => {
-      const response = await fetch(`/api/user-achievements?userId=${encodeURIComponent(userId)}`);
+      const response = await fetch(`/api/consolidated?action=user-achievements&userId=${encodeURIComponent(userId)}`);
       if (!response.ok) {
         throw new Error('Falha ao buscar conquistas do usuário');
       }
@@ -161,10 +161,11 @@ export function useLibraryMaterials(searchTerm: string = '', category: string = 
     queryKey: ['library-materials', searchTerm, category],
     queryFn: async () => {
       const params = new URLSearchParams();
+      params.append('action', 'library-materials');
       if (searchTerm) params.append('search', searchTerm);
       if (category) params.append('category', category);
       
-      const response = await fetch(`/api/library/materials?${params.toString()}`);
+      const response = await fetch(`/api/consolidated?${params.toString()}`);
       if (!response.ok) {
         throw new Error('Falha ao buscar materiais da biblioteca');
       }
@@ -206,7 +207,7 @@ export function useReportsSpecialties(userId: string = 'demo-user') {
   return useQuery({
     queryKey: ['reports-specialties', userId],
     queryFn: async () => {
-      const response = await fetch(`/api/reports/specialties?userId=${encodeURIComponent(userId)}`);
+      const response = await fetch(`/api/consolidated?action=reports-specialties&userId=${encodeURIComponent(userId)}`);
       if (!response.ok) {
         throw new Error('Falha ao buscar dados de especialidades');
       }
@@ -226,7 +227,7 @@ export function useReportsGoals(userId: string = 'demo-user') {
   return useQuery({
     queryKey: ['reports-goals', userId],
     queryFn: async () => {
-      const response = await fetch(`/api/reports/goals?userId=${encodeURIComponent(userId)}`);
+      const response = await fetch(`/api/consolidated?action=reports-goals&userId=${encodeURIComponent(userId)}`);
       if (!response.ok) {
         throw new Error('Falha ao buscar dados de metas');
       }

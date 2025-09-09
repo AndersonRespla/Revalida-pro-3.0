@@ -94,13 +94,13 @@ export function useAuth() {
       // Garantir que perfil exista
       const authUser = data.user;
       if (authUser) {
-        await supabase.from('users' as any).upsert({
+        await supabase.from('users').upsert({
           id: authUser.id,
           auth_user_id: authUser.id,
           email: authUser.email,
           full_name: authUser.user_metadata?.full_name || '',
           role: 'candidate'
-        }, { onConflict: 'id' });
+        });
       }
       return { success: true, data };
     } catch (error) {
@@ -131,13 +131,13 @@ export function useAuth() {
       // Upsert no perfil do usuário na tabela users
       const authUser = data.user;
       if (authUser) {
-        await supabase.from('users' as any).upsert({
+        await supabase.from('users').upsert({
           id: authUser.id,
           auth_user_id: authUser.id,
           email: authUser.email,
           full_name: fullName || authUser.user_metadata?.full_name || '',
           role: 'candidate'
-        }, { onConflict: 'id' });
+        });
       }
 
       return { success: true, data };
