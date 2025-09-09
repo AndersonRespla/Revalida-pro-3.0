@@ -88,9 +88,27 @@ export function useAuth() {
       });
 
       if (error) {
-        setAuthState(prev => ({ ...prev, loading: false, error: error.message }));
-        return { success: false, error: error.message };
+        // Tratar erros específicos de confirmação de email
+        let errorMessage = error.message;
+        if (error.message.includes('email not confirmed') || error.message.includes('Email not confirmed')) {
+          // Tentar reenviar email de confirmação
+          try {
+            await supabase.auth.resend({
+              type: 'signup',
+              email: email
+            });
+            errorMessage = 'Email de confirmação reenviado. Verifique sua caixa de entrada.';
+          } catch (resendError) {
+            errorMessage = 'Por favor, verifique seu email e clique no link de confirmação antes de fazer login.';
+          }
+        } else if (error.message.includes('Invalid login credentials')) {
+          errorMessage = 'Email ou senha incorretos.';
+        }
+        
+        setAuthState(prev => ({ ...prev, loading: false, error: errorMessage }));
+        return { success: false, error: errorMessage };
       }
+      
       // Garantir que perfil exista
       const authUser = data.user;
       if (authUser) {
@@ -104,7 +122,7 @@ export function useAuth() {
       }
       return { success: true, data };
     } catch (error) {
-      const errorMessage = 'Failed to sign in';
+      const errorMessage = 'Erro ao fazer login. Tente novamente.';
       setAuthState(prev => ({ ...prev, loading: false, error: errorMessage }));
       return { success: false, error: errorMessage };
     }
@@ -125,9 +143,20 @@ export function useAuth() {
       });
 
       if (error) {
-        setAuthState(prev => ({ ...prev, loading: false, error: error.message }));
-        return { success: false, error: error.message };
+        // Tratar erros específicos de cadastro
+        let errorMessage = error.message;
+        if (error.message.includes('User already registered')) {
+          errorMessage = 'Este email já está cadastrado. Tente fazer login.';
+        } else if (error.message.includes('Password should be at least')) {
+          errorMessage = 'A senha deve ter pelo menos 6 caracteres.';
+        } else if (error.message.includes('Invalid email')) {
+          errorMessage = 'Email inválido.';
+        }
+        
+        setAuthState(prev => ({ ...prev, loading: false, error: errorMessage }));
+        return { success: false, error: errorMessage };
       }
+      
       // Upsert no perfil do usuário na tabela users
       const authUser = data.user;
       if (authUser) {
@@ -142,7 +171,7 @@ export function useAuth() {
 
       return { success: true, data };
     } catch (error) {
-      const errorMessage = 'Failed to sign up';
+      const errorMessage = 'Erro ao criar conta. Tente novamente.';
       setAuthState(prev => ({ ...prev, loading: false, error: errorMessage }));
       return { success: false, error: errorMessage };
     }
