@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { AuthModal } from "@/components/AuthModal";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import SimulationLanding from "./pages/SimulationLanding";
@@ -26,6 +25,7 @@ import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Schedule from "./pages/Schedule";
 import NotFound from "./pages/NotFound";
+import AuthPage from "./pages/Auth";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,9 +38,8 @@ const queryClient = new QueryClient({
 
 function AppContent() {
   const { user, loading } = useAuth();
-  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [/*showAuthModal*/, /*setShowAuthModal*/] = useState(false);
 
-  // Mostrar loading enquanto verifica autenticação
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -57,6 +56,7 @@ function AppContent() {
       <Router>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<AuthPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/chatgpt" element={<ChatGPT />} />
           <Route path="/dashboard/library" element={<Library />} />
@@ -80,11 +80,6 @@ function AppContent() {
         <Toaster />
         <Sonner />
       </Router>
-
-      <AuthModal 
-        open={showAuthModal} 
-        onOpenChange={setShowAuthModal} 
-      />
     </>
   );
 }

@@ -6,9 +6,6 @@
     "api/feedback.ts": {
       "maxDuration": 30
     },
-    "api/confirm-email.ts": {
-      "maxDuration": 10
-    },
     "api/chatgpt.ts": {
       "maxDuration": 30
     },
