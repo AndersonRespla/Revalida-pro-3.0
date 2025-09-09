@@ -78,6 +78,25 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Função para confirmar email automaticamente via API
+  const confirmEmailAutomatically = async (email: string) => {
+    try {
+      const response = await fetch('/api/confirm-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error('Error confirming email:', error);
+      return { success: false, error: 'Failed to confirm email' };
+    }
+  };
+
   const signIn = async (email: string, password: string) => {
     try {
       setAuthState(prev => ({ ...prev, loading: true, error: null }));
@@ -91,15 +110,37 @@ export function useAuth() {
         // Tratar erros específicos de confirmação de email
         let errorMessage = error.message;
         if (error.message.includes('email not confirmed') || error.message.includes('Email not confirmed')) {
-          // Tentar reenviar email de confirmação
+          // Tentar confirmar o email automaticamente via API
           try {
-            await supabase.auth.resend({
-              type: 'signup',
-              email: email
-            });
-            errorMessage = 'Email de confirmação reenviado. Verifique sua caixa de entrada.';
-          } catch (resendError) {
-            errorMessage = 'Por favor, verifique seu email e clique no link de confirmação antes de fazer login.';
+            const confirmResult = await confirmEmailAutomatically(email);
+            if (confirmResult.success) {
+              // Tentar login novamente após confirmação
+              const retryResult = await supabase.auth.signInWithPassword({
+                email,
+                password
+              });
+              
+              if (retryResult.error) {
+                errorMessage = 'Email confirmado automaticamente. Tente fazer login novamente.';
+              } else {
+                // Login bem-sucedido após confirmação automática
+                const authUser = retryResult.data.user;
+                if (authUser) {
+                  await supabase.from('users').upsert({
+                    id: authUser.id,
+                    auth_user_id: authUser.id,
+                    email: authUser.email,
+                    full_name: authUser.user_metadata?.full_name || '',
+                    role: 'candidate'
+                  });
+                }
+                return { success: true, data: retryResult.data };
+              }
+            } else {
+              errorMessage = 'Não foi possível confirmar o email automaticamente. Tente novamente.';
+            }
+          } catch (confirmError) {
+            errorMessage = 'Erro ao confirmar email. Tente fazer login novamente.';
           }
         } else if (error.message.includes('Invalid login credentials')) {
           errorMessage = 'Email ou senha incorretos.';
