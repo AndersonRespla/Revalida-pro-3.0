@@ -56,7 +56,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       acc[type].totalScore += session.total_score || 0;
       acc[type].totalTime += session.duration_minutes || 0;
       return acc;
-    }, {} as Record<string, { count: number; totalScore: number; totalTime: number }>) || {};
+    }, {} as Record<string, { count: number; totalScore: number; totalTime: number; averageScore?: number; averageTime?: number }>) || {};
 
     // Calcular médias por tipo
     Object.keys(sessionsByType).forEach(type => {

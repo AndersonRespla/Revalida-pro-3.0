@@ -54,7 +54,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const text = String(json?.text || '');
 
     // Registrar transcrição em tabela (MVP) se existir tabela transcripts(simulation_id text, station int, transcript text, audio_path text)
-    await supabase.from('transcripts').insert({ simulation_id: simulationId, station, transcript: text, audio_path: `${bucket}/${path}` }).catch(() => {});
+    try {
+      await supabase.from('transcripts').insert({ simulation_id: simulationId, station, transcript: text, audio_path: `${bucket}/${path}` });
+    } catch (error) {
+      console.log('Transcript table not available:', error);
+    }
 
     res.status(200).json({ ok: true, transcript: text, simulationId, station, audioPath: `${bucket}/${path}` });
   } catch (e: any) {

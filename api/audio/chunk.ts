@@ -50,8 +50,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await supabase
       .from('audio_recordings')
       .update({ 
-        last_chunk_at: new Date().toISOString(),
-        chunks_count: supabase.raw('chunks_count + 1')
+        last_chunk_at: new Date().toISOString()
       })
       .eq('id', recordingId);
 
