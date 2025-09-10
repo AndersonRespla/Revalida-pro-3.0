@@ -110,19 +110,18 @@ npm install
 npm run dev
 ```
 
-### 3.1) Autenticação (Supabase Auth: email/senha)
-- Confirme no painel Supabase: Authentication > Providers > Email → Email confirmations: DESABILITADO.
+### 3.1) Autenticação (Google OAuth via Supabase)
+- Configure no painel Supabase: Authentication > Providers > Google → Enable Google provider
+- Configure no Google Console: OAuth 2.0 Client IDs com callback `https://your-project.supabase.co/auth/v1/callback`
 - O app usa apenas a anon key no cliente (`@supabase/supabase-js`) com `persistSession: true` e `autoRefreshToken: true`.
-- Fluxo: Cadastro (nome, email, senha) → login automático → redireciona para `/dashboard`.
+- Fluxo: Clique "Entrar com Google" → popup Google → redireciona para `/dashboard`.
 - Sessão persiste no `localStorage` e restaura após reload.
 
 ### 3.2) Testes manuais mínimos
-- Cadastro com email válido e senha >= 6 → login automático → redirect `/dashboard`.
-- Login com credenciais válidas → redirect `/dashboard`.
-- Login com senha errada → mensagem “Email ou senha incorretos”.
+- Clique "Entrar com Google" → popup Google → autorizar → redirect `/dashboard`.
 - Acessar `/dashboard` deslogado → redirect `/auth`.
 - Reload em `/dashboard` logado → permanece logado.
-- Mobile: formulários responsivos e feedbacks de loading/erro.
+- Mobile: botão Google responsivo e feedbacks de loading/erro.
 
 ### 4) Deploy via GitHub → Vercel
 1. Suba este repositório para o GitHub
@@ -146,18 +145,21 @@ To connect a domain, navigate to Project > Settings > Domains and click Connect 
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
 
-## 🔐 Implementação de Autenticação
+## 🔐 Implementação de Autenticação (Google OAuth)
 - Cliente Supabase: `src/integrations/supabase/client.ts`
   - `createClient(VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)`
   - `auth: { storage: localStorage, persistSession: true, autoRefreshToken: true }`
 - Hook: `src/hooks/useAuth.ts`
   - Estado: `user | null`, `loading`, `error`
   - Inicializa com `supabase.auth.getSession()` e `onAuthStateChange`
-  - `signUp(email, password, fullName?)` com `user_metadata.full_name` e login automático
-  - `signIn(email, password)` e `signOut()`
-  - Normalização de erros comuns (“Email ou senha incorretos”, “Este email já está cadastrado”)
+  - `signInWithGoogle()` com `signInWithOAuth({ provider: 'google' })`
+  - `signOut()` para logout
+  - Normalização de erros OAuth
 - Página `/auth`: `src/pages/Auth.tsx`
-  - Tabs Entrar/Cadastrar, validações simples e redirecionamento pós-sucesso
+  - Botão "Entrar com Google" com ícone oficial
+  - Redirecionamento automático após OAuth
+- Modal Auth: `src/components/AuthModal.tsx`
+  - Botão Google integrado no modal da landing
 - Guards de rota: `src/App.tsx`
   - Públicas: `/`, `/auth`
   - Privadas: `/dashboard`, `/settings`, etc. Redireciona para `/auth` se não logado
