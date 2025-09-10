@@ -74,7 +74,7 @@ export function useAuth() {
       return 'Este email já está cadastrado';
     }
     if (m.includes('too many requests') || m.includes('rate limit')) {
-      return 'Muitas tentativas. Aguarde alguns segundos e tente novamente.';
+      return 'Limite de cadastros atingido. Supabase permite apenas 2 cadastros por hora. Tente novamente mais tarde.';
     }
     if (m.includes('email not confirmed') || m.includes('confirm') || m.includes('confirmed')) {
       // Em projetos com confirmação desabilitada, pode aparecer por cache/estado antigo.
@@ -130,63 +130,60 @@ export function useAuth() {
     if (inFlight.current.signUp) {
       return { success: false, error: 'Operação em andamento. Aguarde.' } as const;
     }
+    
+    // Verificar cache local para evitar tentativas desnecessárias
+    const cacheKey = `signup_attempt_${email}`;
+    const lastAttempt = localStorage.getItem(cacheKey);
+    if (lastAttempt) {
+      const timeDiff = Date.now() - parseInt(lastAttempt);
+      if (timeDiff < 300000) { // 5 minutos
+        return { success: false, error: 'Muitas tentativas para este email. Aguarde 5 minutos.' } as const;
+      }
+    }
+    
     try {
       inFlight.current.signUp = true;
       setAuthState(prev => ({ ...prev, loading: true, error: null }));
-      // Retry simples para 429 no signUp
-      let attempt = 0;
-      let signUpData: any = null;
-      let signUpErr: any = null;
-      while (attempt < 2) {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: fullName ? { full_name: fullName } : undefined,
-          },
-        });
-        if (!error) { signUpData = data; break; }
-        signUpErr = error;
-        // @ts-expect-error supabase error may have status
-        const status = (error as any)?.status;
-        if (status === 429 || String(error.message).toLowerCase().includes('too many requests')) {
-          await delay(4000 * (attempt + 1)); // Delay ainda maior para signup
-          attempt += 1;
-          continue;
-        }
-        break;
+      
+      // Primeiro, tentar fazer login para verificar se já existe
+      const { data: existingUser } = await supabase.auth.signInWithPassword({ email, password });
+      if (existingUser.user) {
+        // Usuário já existe, fazer login normalmente
+        setAuthState(prev => ({ ...prev, loading: false, error: null }));
+        inFlight.current.signUp = false;
+        return { success: true, data: existingUser } as const;
       }
-      if (signUpErr) {
-        const msg = normalizeAuthError(signUpErr.message);
+      
+      // Se não existe, tentar cadastrar (apenas 1 tentativa para evitar 429)
+      localStorage.setItem(cacheKey, Date.now().toString());
+      
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: fullName ? { full_name: fullName } : undefined,
+        },
+      });
+      
+      if (signUpError) {
+        const msg = normalizeAuthError(signUpError.message);
         setAuthState(prev => ({ ...prev, loading: false, error: msg }));
         inFlight.current.signUp = false;
         return { success: false, error: msg } as const;
       }
 
-      // Com confirmações desabilitadas, o usuário já pode autenticar.
-      let loginErr: any = null;
-      attempt = 0;
-      while (attempt < 2) {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (!error) {
-          setAuthState(prev => ({ ...prev, loading: false, error: null }));
-          inFlight.current.signUp = false;
-          return { success: true, data: data ?? signUpData } as const;
-        }
-        loginErr = error;
-        // @ts-expect-error supabase error may have status
-        const status = (error as any)?.status;
-        if (status === 429 || String(error.message).toLowerCase().includes('too many requests')) {
-          await delay(3000 * (attempt + 1)); // Delay maior para 429
-          attempt += 1;
-          continue;
-        }
-        break;
+      // Com confirmações desabilitadas, tentar login imediatamente
+      const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({ email, password });
+      if (loginError) {
+        const msg = normalizeAuthError(loginError.message);
+        setAuthState(prev => ({ ...prev, loading: false, error: msg }));
+        inFlight.current.signUp = false;
+        return { success: false, error: msg } as const;
       }
-      const msg = normalizeAuthError(loginErr?.message || 'Erro ao cadastrar.');
-      setAuthState(prev => ({ ...prev, loading: false, error: msg }));
+
+      setAuthState(prev => ({ ...prev, loading: false, error: null }));
       inFlight.current.signUp = false;
-      return { success: false, error: msg } as const;
+      return { success: true, data: loginData ?? signUpData } as const;
     } catch (_e) {
       const msg = 'Erro ao cadastrar.';
       setAuthState(prev => ({ ...prev, loading: false, error: msg }));
