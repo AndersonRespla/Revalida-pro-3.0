@@ -104,7 +104,7 @@ export function useAuth() {
         // @ts-expect-error supabase error may have status
         const status = (error as any)?.status;
         if (status === 429 || String(error.message).toLowerCase().includes('too many requests')) {
-          await delay(600 * (attempt + 1));
+          await delay(3000 * (attempt + 1)); // Delay maior para 429
           attempt += 1;
           continue;
         }
@@ -150,7 +150,7 @@ export function useAuth() {
         // @ts-expect-error supabase error may have status
         const status = (error as any)?.status;
         if (status === 429 || String(error.message).toLowerCase().includes('too many requests')) {
-          await delay(800 * (attempt + 1));
+          await delay(4000 * (attempt + 1)); // Delay ainda maior para signup
           attempt += 1;
           continue;
         }
@@ -177,7 +177,7 @@ export function useAuth() {
         // @ts-expect-error supabase error may have status
         const status = (error as any)?.status;
         if (status === 429 || String(error.message).toLowerCase().includes('too many requests')) {
-          await delay(600 * (attempt + 1));
+          await delay(3000 * (attempt + 1)); // Delay maior para 429
           attempt += 1;
           continue;
         }

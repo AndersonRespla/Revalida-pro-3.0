@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -16,6 +16,7 @@ export default function AuthPage() {
   const [fullName, setFullName] = useState('')
   const [localError, setLocalError] = useState('')
   const navigate = useNavigate()
+  const lastClickRef = useRef<number>(0)
 
   useEffect(() => {
     setLocalError('')
@@ -33,6 +34,13 @@ export default function AuthPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
+    const now = Date.now()
+    if (now - lastClickRef.current < 3000) {
+      setLocalError('Aguarde antes de tentar novamente')
+      return
+    }
+    lastClickRef.current = now
+    
     setLocalError('')
     if (!fullName.trim()) return setLocalError('Informe seu nome completo')
     if (!validateEmail(email)) return setLocalError('Email inválido')
