@@ -1,14 +1,55 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuth } from '@/hooks/useAuth'
 import { Loader2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '@/integrations/supabase/client'
 
 export default function AuthPage() {
   const { signInWithGoogle, loading, error, user } = useAuth()
   const [localError, setLocalError] = useState('')
+  const [isProcessingOAuth, setIsProcessingOAuth] = useState(false)
   const navigate = useNavigate()
+
+  // Processar tokens OAuth se estiverem na URL
+  useEffect(() => {
+    const processOAuthCallback = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+      
+      if (accessToken && refreshToken) {
+        console.log('Processando tokens OAuth na página Auth...');
+        setIsProcessingOAuth(true);
+        
+        try {
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (error) {
+            console.error('Erro ao processar tokens OAuth:', error);
+            setLocalError('Erro ao processar login');
+            setIsProcessingOAuth(false);
+            return;
+          }
+          
+          console.log('Tokens processados com sucesso, redirecionando...');
+          // Limpar URL e redirecionar
+          window.history.replaceState({}, document.title, '/auth');
+          navigate('/dashboard', { replace: true });
+        } catch (err) {
+          console.error('Erro inesperado:', err);
+          setLocalError('Erro inesperado ao processar login');
+          setIsProcessingOAuth(false);
+        }
+      }
+    };
+
+    processOAuthCallback();
+  }, [navigate]);
 
   // Se já estiver logado, redirecionar para dashboard
   if (user) {
@@ -23,6 +64,23 @@ export default function AuthPage() {
       setLocalError(result.error || 'Falha ao fazer login com Google')
     }
     // OAuth redireciona automaticamente, não precisamos navegar manualmente
+  }
+
+  // Mostrar loading se estiver processando OAuth
+  if (isProcessingOAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-slate-100 dark:from-slate-900 dark:to-slate-950 p-4">
+        <Card className="w-full max-w-md shadow-xl">
+          <CardContent className="flex flex-col items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Processando login...</h3>
+            <p className="text-sm text-gray-600 text-center">
+              Aguarde enquanto processamos sua autenticação com Google.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
