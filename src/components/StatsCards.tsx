@@ -14,7 +14,9 @@ import {
 import { useUserStats } from "@/hooks/useUserStats";
 import { useAuth } from "@/hooks/useAuth";
 
-export function StatsCards() {
+import { memo } from "react";
+
+export const StatsCards = memo(function StatsCards() {
   const { user } = useAuth();
   const { data: userStats, isLoading, isError } = useUserStats(user?.id || '');
 
@@ -141,9 +143,9 @@ export function StatsCards() {
       ))}
     </div>
   );
-}
+});
 
-export function QuickAccessCards() {
+export const QuickAccessCards = memo(function QuickAccessCards() {
   const quickAccess = [
     {
       title: "IA Independente",
@@ -208,4 +210,4 @@ export function QuickAccessCards() {
       ))}
     </div>
   );
-}
+});

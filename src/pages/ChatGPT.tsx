@@ -46,7 +46,7 @@ export default function ChatGPT() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: input,
-          conversation: messages
+          conversationHistory: messages.map(m => ({ role: m.role, content: m.content }))
         })
       });
 

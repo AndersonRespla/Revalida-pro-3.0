@@ -195,23 +195,7 @@ export default function HybridLobby() {
             </div>
           </div>
           
-          {/* Botão de debug */}
-          <div className="mt-4">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => {
-                console.log("Estado atual:", { stations, filteredStations, loading });
-                fetchStations();
-              }}
-              className="text-xs"
-            >
-              🔍 Debug: Recarregar Estações
-            </Button>
-            <span className="ml-2 text-xs text-muted-foreground">
-              Estações carregadas: {stations.length} | Filtradas: {filteredStations.length}
-            </span>
-          </div>
+          {/* debug removido em produção */}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

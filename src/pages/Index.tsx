@@ -21,10 +21,24 @@ const Index = () => {
     else setAuthOpen(true);
   };
 
+  const toggleTheme = () => {
+    const root = document.documentElement;
+    const isDark = root.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation onOpenAuth={() => setAuthOpen(true)} />
       <div className="pt-20">
+        <div className="container mx-auto px-6 mb-4 flex justify-end">
+          <button
+            onClick={toggleTheme}
+            className="text-xs rounded-md border px-3 py-1 bg-muted/40 hover:bg-muted transition-colors"
+          >
+            Alternar tema
+          </button>
+        </div>
         <HeroSection onPrimaryCta={handlePrimaryCta} />
         <ProblemSection />
         <SolutionSection />

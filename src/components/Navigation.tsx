@@ -15,7 +15,7 @@ export function Navigation({ onOpenAuth }: NavigationProps) {
             <div className="p-2 rounded-lg bg-primary/10">
               <div className="h-6 w-6 bg-primary rounded" />
             </div>
-            <span className="text-lg font-bold">Revalida Pro 3.0</span>
+            <span className="text-lg font-bold">Revalida Pro</span>
           </Link>
 
           <div className="flex items-center gap-4">

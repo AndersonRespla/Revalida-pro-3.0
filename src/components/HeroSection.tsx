@@ -9,7 +9,7 @@ interface HeroSectionProps {
 
 export function HeroSection({ onPrimaryCta }: HeroSectionProps) {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden transition-colors duration-300">
       {/* Background with gradient overlay */}
       <div className="absolute inset-0 hero-gradient">
         <img 
@@ -24,7 +24,7 @@ export function HeroSection({ onPrimaryCta }: HeroSectionProps) {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
           <div className="space-y-8">
-            <div className="space-y-4">
+            <div className="space-y-4 transition-transform duration-300">
               <h1 className="text-5xl lg:text-6xl font-bold text-glow leading-tight">
                 Revalida Pro <span className="text-primary">3.0</span>
               </h1>

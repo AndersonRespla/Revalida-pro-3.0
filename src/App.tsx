@@ -6,26 +6,27 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
-import SimulationLanding from "./pages/SimulationLanding";
-import SimulationExam from "./pages/SimulationExam";
-import SimulationStudy from "./pages/SimulationStudy";
-import HybridLobby from "./pages/HybridLobby";
-import HybridMode from "./pages/HybridMode";
-import Stations from "./pages/Stations";
-import AdminStations from "./pages/AdminStations";
-import Admin from "./pages/Admin";
-import Collaborative from "./pages/Collaborative";
-import CollaborativeLobby from "./pages/CollaborativeLobby";
-import CollaborativeSimulation from "./pages/CollaborativeSimulation";
-import ChatGPT from "./pages/ChatGPT";
-import Library from "./pages/Library";
-import Reports from "./pages/Reports";
-import Settings from "./pages/Settings";
-import Schedule from "./pages/Schedule";
-import NotFound from "./pages/NotFound";
-import AuthPage from "./pages/Auth";
+import { lazy, Suspense } from "react";
+const Index = lazy(() => import("./pages/Index"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const SimulationLanding = lazy(() => import("./pages/SimulationLanding"));
+const SimulationExam = lazy(() => import("./pages/SimulationExam"));
+const SimulationStudy = lazy(() => import("./pages/SimulationStudy"));
+const HybridLobby = lazy(() => import("./pages/HybridLobby"));
+const HybridMode = lazy(() => import("./pages/HybridMode"));
+const Stations = lazy(() => import("./pages/Stations"));
+const AdminStations = lazy(() => import("./pages/AdminStations"));
+const Admin = lazy(() => import("./pages/Admin"));
+const Collaborative = lazy(() => import("./pages/Collaborative"));
+const CollaborativeLobby = lazy(() => import("./pages/CollaborativeLobby"));
+const CollaborativeSimulation = lazy(() => import("./pages/CollaborativeSimulation"));
+const ChatGPT = lazy(() => import("./pages/ChatGPT"));
+const Library = lazy(() => import("./pages/Library"));
+const Reports = lazy(() => import("./pages/Reports"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Schedule = lazy(() => import("./pages/Schedule"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AuthPage = lazy(() => import("./pages/Auth"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,6 +55,7 @@ function AppContent() {
   return (
     <>
       <Router>
+        <Suspense fallback={<div className="p-8 text-center text-sm text-muted-foreground">Carregando...</div>}>
         <Routes>
           {/* Públicas */}
           <Route path="/" element={<Index />} />
@@ -84,6 +86,7 @@ function AppContent() {
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
         <Toaster />
         <Sonner />
       </Router>

@@ -46,14 +46,21 @@ async function handleUserStats(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Missing userId' });
   }
 
-  const supabase = getSupabaseAdmin();
-  
-  // Implementar lógica de estatísticas do usuário
+  // Nota: Para evitar falhas enquanto o banco não está totalmente configurado,
+  // retornamos um objeto de estatísticas coerente com o esperado no frontend
+  // (useUserStats). Quando as tabelas estiverem prontas, substituir por queries reais.
+
   const stats = {
+    progressPercentage: 0,
+    nextGoalPercentage: 85,
+    studyTimeThisWeek: 0,
     totalSessions: 0,
-    totalStudyTime: 0,
     averageScore: 0,
-    completedStations: 0
+    ranking: null as number | null,
+    totalUsers: 1,
+    percentile: 0,
+    achievements: 0,
+    sessionsThisWeek: 0,
   };
 
   return res.status(200).json({ ok: true, stats });
@@ -120,22 +127,6 @@ async function handleLibraryMaterials(req: VercelRequest, res: VercelResponse) {
   const materials = [];
 
   return res.status(200).json({ ok: true, materials });
-}
-
-async function handleReportsGoals(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const { userId } = req.query;
-  if (!userId) {
-    return res.status(400).json({ error: 'Missing userId' });
-  }
-
-  // Implementar lógica de relatórios de metas
-  const goals = [];
-
-  return res.status(200).json({ ok: true, goals });
 }
 
 async function handleReportsSpecialties(req: VercelRequest, res: VercelResponse) {

@@ -11,6 +11,11 @@ export function DashboardHeader() {
   const collapsed = state === "collapsed";
   const { user } = useAuth();
   const displayName = user?.full_name || user?.email?.split('@')[0] || 'Usuário';
+  const toggleTheme = () => {
+    const root = document.documentElement;
+    const isDark = root.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  };
   
   return (
     <header className="h-16 border-b border-border/50 bg-background/95 backdrop-blur-sm">
@@ -26,6 +31,10 @@ export function DashboardHeader() {
 
         {/* Actions */}
         <div className="flex items-center gap-3">
+          {/* Theme Toggle */}
+          <Button variant="ghost" size="sm" className="gap-2" onClick={toggleTheme}>
+            Tema
+          </Button>
           {/* Search */}
           <div className="relative hidden md:block">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
