@@ -1,14 +1,17 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { OpenAI } from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const apiKey = process.env.OPENAI_API_KEY;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  if (!apiKey) {
+    return res.status(500).json({ error: 'Missing OPENAI_API_KEY' });
+  }
+  const openai = new OpenAI({ apiKey });
 
   try {
     const { message, conversationHistory = [] } = req.body;
