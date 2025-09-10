@@ -70,6 +70,7 @@ export function useUserStats(userId: string = 'demo-user') {
     },
     staleTime: 1000 * 60 * 5, // 5 minutos
     retry: 3,
+    enabled: Boolean(userId),
   });
 }
 
@@ -92,6 +93,7 @@ export function useUserActivity(userId: string = 'demo-user', limit: number = 5)
     },
     staleTime: 1000 * 60 * 2, // 2 minutos
     retry: 3,
+    enabled: Boolean(userId),
   });
 }
 
@@ -112,6 +114,7 @@ export function useUserProgress(userId: string = 'demo-user') {
     },
     staleTime: 1000 * 60 * 5, // 5 minutos
     retry: 3,
+    enabled: Boolean(userId),
   });
 }
 
@@ -132,6 +135,7 @@ export function useUserAchievements(userId: string = 'demo-user') {
     },
     staleTime: 1000 * 60 * 10, // 10 minutos
     retry: 3,
+    enabled: Boolean(userId),
   });
 }
 
@@ -199,6 +203,7 @@ export function useReportsPerformance(userId: string = 'demo-user', period: stri
     },
     staleTime: 1000 * 60 * 2, // 2 minutos
     retry: 3,
+    enabled: Boolean(userId),
   });
 }
 
@@ -219,6 +224,7 @@ export function useReportsSpecialties(userId: string = 'demo-user') {
     },
     staleTime: 1000 * 60 * 5, // 5 minutos
     retry: 3,
+    enabled: Boolean(userId),
   });
 }
 
@@ -239,6 +245,7 @@ export function useReportsGoals(userId: string = 'demo-user') {
     },
     staleTime: 1000 * 60 * 2, // 2 minutos
     retry: 3,
+    enabled: Boolean(userId),
   });
 }
 
