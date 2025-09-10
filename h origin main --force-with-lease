@@ -1,0 +1,5 @@
+[33mecc4547[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m fix(deploy): adicionar configuração SPA no vercel.json para roteamento correto
+[33m56e8ba7[m fix(auth): detectar ambiente dev/prod para redirect URL correto
+[33m0c656d1[m fix(auth): suportar ambos métodos OAuth (token e code) para melhor compatibilidade
+[33m56d4bef[m fix(auth): processar tokens OAuth diretamente na página Auth com feedback visual
+[33me8d1f77[m fix(auth): melhorar processamento de tokens OAuth com logs e redirecionamento mais robusto
