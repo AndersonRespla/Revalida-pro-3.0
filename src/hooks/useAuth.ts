@@ -26,6 +26,30 @@ export function useAuth() {
 
   useEffect(() => {
     const init = async () => {
+      // Verificar se há tokens na URL (callback do OAuth)
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+      
+      if (accessToken && refreshToken) {
+        // Processar tokens do OAuth callback
+        const { data, error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken
+        });
+        
+        if (error) {
+          console.error('Erro ao processar tokens OAuth:', error);
+          setAuthState({ user: null, loading: false, error: 'Erro ao processar login' });
+          return;
+        }
+        
+        // Limpar URL após processar tokens e redirecionar para dashboard
+        window.history.replaceState({}, document.title, window.location.pathname);
+        window.location.href = '/dashboard';
+      }
+      
+      // Obter sessão atual
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         setAuthState({
@@ -94,7 +118,7 @@ export function useAuth() {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: `${window.location.origin}/auth`
         }
       });
       
