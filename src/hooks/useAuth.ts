@@ -125,10 +125,16 @@ export function useAuth() {
       inFlight.current.signIn = true;
       setAuthState(prev => ({ ...prev, loading: true, error: null }));
       
+      // Detectar se está em desenvolvimento ou produção
+      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const redirectUrl = isDevelopment 
+        ? `${window.location.origin}/auth`
+        : 'https://www.dreasyai.com/auth';
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth`,
+          redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
