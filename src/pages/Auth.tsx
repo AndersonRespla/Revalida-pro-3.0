@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useAuth } from '@/hooks/useAuth'
 import { Loader2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 export default function AuthPage() {
   const { signIn, signUp, loading, error } = useAuth()
@@ -14,19 +15,31 @@ export default function AuthPage() {
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
   const [localError, setLocalError] = useState('')
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    setLocalError('')
+  }, [tab])
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
     setLocalError('')
+    if (!validateEmail(email)) return setLocalError('Email inválido')
+    if (!validatePassword(password)) return setLocalError('A senha deve ter pelo menos 6 caracteres')
     const result = await signIn(email, password)
-    if (!result.success) setLocalError(result.error || 'Falha ao entrar')
+    if (!result.success) return setLocalError(result.error || 'Falha ao entrar')
+    navigate('/dashboard', { replace: true })
   }
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
     setLocalError('')
+    if (!fullName.trim()) return setLocalError('Informe seu nome completo')
+    if (!validateEmail(email)) return setLocalError('Email inválido')
+    if (!validatePassword(password)) return setLocalError('A senha deve ter pelo menos 6 caracteres')
     const result = await signUp(email, password, fullName)
-    if (!result.success) setLocalError(result.error || 'Falha ao cadastrar')
+    if (!result.success) return setLocalError(result.error || 'Falha ao cadastrar')
+    navigate('/dashboard', { replace: true })
   }
 
   return (
@@ -51,7 +64,7 @@ export default function AuthPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Senha</Label>
-                  <Input id="password" type="password" value={password} onChange={e=>setPassword(e.target.value)} required disabled={loading} />
+                  <Input id="password" type="password" value={password} onChange={e=>setPassword(e.target.value)} required minLength={6} disabled={loading} />
                 </div>
                 {(error || localError) && (
                   <div className="text-sm text-red-600 bg-red-50 dark:bg-red-950/40 p-2 rounded">
@@ -95,4 +108,13 @@ export default function AuthPage() {
       </Card>
     </div>
   )
+}
+
+function validateEmail(email: string) {
+  // Validação simples
+  return /.+@.+\..+/.test(email)
+}
+
+function validatePassword(password: string) {
+  return (password || '').length >= 6
 }

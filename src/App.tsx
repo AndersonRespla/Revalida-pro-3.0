@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
@@ -55,26 +55,33 @@ function AppContent() {
     <>
       <Router>
         <Routes>
+          {/* Públicas */}
           <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard/chatgpt" element={<ChatGPT />} />
-          <Route path="/dashboard/library" element={<Library />} />
-          <Route path="/dashboard/reports" element={<Reports />} />
-          <Route path="/dashboard/settings" element={<Settings />} />
-          <Route path="/dashboard/schedule" element={<Schedule />} />
-          <Route path="/simulation" element={<SimulationLanding />} />
-          <Route path="/simulation/exam" element={<SimulationExam />} />
-          <Route path="/simulation/study" element={<SimulationStudy />} />
-          <Route path="/simulation/hybrid" element={<HybridLobby />} />
-          <Route path="/simulation/hybrid/sim/:code" element={<HybridMode />} />
-          <Route path="/stations" element={<Stations />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/stations" element={<AdminStations />} />
-          <Route path="/admin/stations/:id" element={<AdminStations />} />
-          <Route path="/dashboard/collaborative" element={<CollaborativeLobby />} />
-          <Route path="/collab/room/:code" element={<Collaborative />} />
-          <Route path="/collab/simulation/:code" element={<CollaborativeSimulation />} />
+          <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
+
+          {/* Privadas */}
+          <Route element={user ? <Outlet /> : <Navigate to="/auth" replace /> }>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/chatgpt" element={<ChatGPT />} />
+            <Route path="/dashboard/library" element={<Library />} />
+            <Route path="/dashboard/reports" element={<Reports />} />
+            <Route path="/dashboard/settings" element={<Settings />} />
+            <Route path="/dashboard/schedule" element={<Schedule />} />
+            <Route path="/simulation" element={<SimulationLanding />} />
+            <Route path="/simulation/exam" element={<SimulationExam />} />
+            <Route path="/simulation/study" element={<SimulationStudy />} />
+            <Route path="/simulation/hybrid" element={<HybridLobby />} />
+            <Route path="/simulation/hybrid/sim/:code" element={<HybridMode />} />
+            <Route path="/stations" element={<Stations />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/stations" element={<AdminStations />} />
+            <Route path="/admin/stations/:id" element={<AdminStations />} />
+            <Route path="/dashboard/collaborative" element={<CollaborativeLobby />} />
+            <Route path="/collab/room/:code" element={<Collaborative />} />
+            <Route path="/collab/simulation/:code" element={<CollaborativeSimulation />} />
+          </Route>
+
+          {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />

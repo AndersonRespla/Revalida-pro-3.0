@@ -61,61 +61,79 @@ export function useAuth() {
     return () => subscription.unsubscribe()
   }, [])
 
+  const normalizeAuthError = (message?: string) => {
+    if (!message) return 'Ocorreu um erro. Tente novamente.';
+    const m = message.toLowerCase();
+    if (m.includes('invalid login credentials') || m.includes('invalid credentials')) {
+      return 'Email ou senha incorretos';
+    }
+    if (m.includes('already registered') || m.includes('user already exists') || m.includes('user already registered')) {
+      return 'Este email já está cadastrado';
+    }
+    if (m.includes('email not confirmed') || m.includes('confirm') || m.includes('confirmed')) {
+      // Em projetos com confirmação desabilitada, pode aparecer por cache/estado antigo.
+      return 'Tente novamente. Se o problema persistir, redefina a senha.';
+    }
+    return message;
+  };
+
   const signIn = async (email: string, password: string) => {
     try {
-      setAuthState(prev => ({ ...prev, loading: true, error: null }))
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      setAuthState(prev => ({ ...prev, loading: true, error: null }));
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        const msg = error.message.includes('confirmed') ? 'Falha ao entrar. Recrie sua conta.' : error.message
-        setAuthState(prev => ({ ...prev, loading: false, error: msg }))
-        return { success: false, error: msg }
+        const msg = normalizeAuthError(error.message);
+        setAuthState(prev => ({ ...prev, loading: false, error: msg }));
+        return { success: false, error: msg } as const;
       }
-      return { success: true, data }
-    } catch (e) {
-      const msg = 'Erro ao fazer login.'
-      setAuthState(prev => ({ ...prev, loading: false, error: msg }))
-      return { success: false, error: msg }
+      setAuthState(prev => ({ ...prev, loading: false, error: null }));
+      return { success: true, data } as const;
+    } catch (_e) {
+      const msg = 'Erro ao fazer login.';
+      setAuthState(prev => ({ ...prev, loading: false, error: msg }));
+      return { success: false, error: msg } as const;
     }
-  }
+  };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
     try {
-      setAuthState(prev => ({ ...prev, loading: true, error: null }))
+      setAuthState(prev => ({ ...prev, loading: true, error: null }));
 
-      // Cria via Admin API no backend com email_confirm=true
-      const resp = await fetch('/api/auth-signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, full_name: fullName })
-      })
-      const json = await resp.json()
-      if (!resp.ok || !json?.ok) {
-        const msg = json?.error || 'Falha ao cadastrar'
-        setAuthState(prev => ({ ...prev, loading: false, error: msg }))
-        return { success: false, error: msg }
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: fullName ? { full_name: fullName } : undefined,
+        },
+      });
+      if (signUpError) {
+        const msg = normalizeAuthError(signUpError.message);
+        setAuthState(prev => ({ ...prev, loading: false, error: msg }));
+        return { success: false, error: msg } as const;
       }
 
-      // Faz login imediatamente
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      // Com confirmações desabilitadas, o usuário já pode autenticar.
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        const msg = error.message
-        setAuthState(prev => ({ ...prev, loading: false, error: msg }))
-        return { success: false, error: msg }
+        const msg = normalizeAuthError(error.message);
+        setAuthState(prev => ({ ...prev, loading: false, error: msg }));
+        return { success: false, error: msg } as const;
       }
 
-      return { success: true, data }
-    } catch (e) {
-      const msg = 'Erro ao cadastrar.'
-      setAuthState(prev => ({ ...prev, loading: false, error: msg }))
-      return { success: false, error: msg }
+      setAuthState(prev => ({ ...prev, loading: false, error: null }));
+      return { success: true, data: data ?? signUpData } as const;
+    } catch (_e) {
+      const msg = 'Erro ao cadastrar.';
+      setAuthState(prev => ({ ...prev, loading: false, error: msg }));
+      return { success: false, error: msg } as const;
     }
-  }
+  };
 
   const signOut = async () => {
-    await supabase.auth.signOut()
-    setAuthState({ user: null, loading: false, error: null })
-    return { success: true }
-  }
+    await supabase.auth.signOut();
+    setAuthState({ user: null, loading: false, error: null });
+    return { success: true } as const;
+  };
 
-  return { ...authState, signIn, signUp, signOut }
+  return { ...authState, signIn, signUp, signOut };
 }
