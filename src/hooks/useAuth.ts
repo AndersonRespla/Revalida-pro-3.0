@@ -32,6 +32,9 @@ export function useAuth() {
       const refreshToken = hashParams.get('refresh_token');
       
       if (accessToken && refreshToken) {
+        console.log('Processando tokens OAuth...');
+        setAuthState(prev => ({ ...prev, loading: true }));
+        
         // Processar tokens do OAuth callback
         const { data, error } = await supabase.auth.setSession({
           access_token: accessToken,
@@ -44,9 +47,15 @@ export function useAuth() {
           return;
         }
         
-        // Limpar URL após processar tokens e redirecionar para dashboard
+        console.log('Tokens processados com sucesso, redirecionando...');
+        // Limpar URL após processar tokens
         window.history.replaceState({}, document.title, window.location.pathname);
-        window.location.href = '/dashboard';
+        
+        // Aguardar um pouco antes de redirecionar para garantir que o estado foi atualizado
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 100);
+        return;
       }
       
       // Obter sessão atual
@@ -68,7 +77,8 @@ export function useAuth() {
     }
     init()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event, session?.user?.email);
       if (session?.user) {
         setAuthState({
           user: {

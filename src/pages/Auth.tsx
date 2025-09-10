@@ -6,9 +6,15 @@ import { Loader2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 export default function AuthPage() {
-  const { signInWithGoogle, loading, error } = useAuth()
+  const { signInWithGoogle, loading, error, user } = useAuth()
   const [localError, setLocalError] = useState('')
   const navigate = useNavigate()
+
+  // Se já estiver logado, redirecionar para dashboard
+  if (user) {
+    navigate('/dashboard', { replace: true })
+    return null
+  }
 
   const handleGoogleSignIn = async () => {
     setLocalError('')
