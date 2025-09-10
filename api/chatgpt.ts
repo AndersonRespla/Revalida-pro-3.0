@@ -36,12 +36,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     ];
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages,
-      max_tokens: 1000,
-      temperature: 0.7,
-    });
+    async function complete(model: string) {
+      return openai.chat.completions.create({
+        model,
+        messages,
+        max_tokens: 1000,
+        temperature: 0.7,
+      });
+    }
+
+    let completion;
+    try {
+      completion = await complete('gpt-4o-mini');
+    } catch (err: any) {
+      // Fallback de modelo para contas que não possuem acesso
+      if (String(err?.message || '').toLowerCase().includes('model')) {
+        completion = await complete('gpt-3.5-turbo');
+      } else {
+        throw err;
+      }
+    }
 
     const response = completion.choices[0]?.message?.content;
 
@@ -54,8 +68,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       response 
     });
 
-  } catch (error) {
-    console.error('Error in chatgpt:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+  } catch (error: any) {
+    const message = String(error?.message || 'Internal server error');
+    const status = Number((error as any)?.status || 500);
+    console.error('Error in chatgpt:', message);
+    return res.status(Math.max(400, Math.min(status, 500))).json({ ok: false, error: 'chatgpt_failed', message });
   }
 }
