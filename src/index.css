@@ -6,101 +6,101 @@
 
 @layer base {
   :root {
-    /* Light (padrão) – similar ao shadcn */
-    --background: 0 0% 100%;
-    --foreground: 222.2 47.4% 11.2%;
+    /* Light refinado (neutro, alto contraste, brand azul + amarelo sutil) */
+    --background: 0 0% 99%;          /* #fdfdfd */
+    --foreground: 222 47% 11%;       /* #0f172a */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 47.4% 11.2%;
+    --card: 0 0% 100%;               /* #ffffff */
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 47.4% 11.2%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --primary-glow: 221.2 83.2% 63.3%;
+    --primary: 221 83% 53%;          /* brand azul */
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 221 83% 60%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 220 14% 96%;        /* cinza claro para superfícies */
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 16% 46%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 48 95% 52%;            /* amarelo de destaque, uso pontual */
+    --accent-foreground: 222 47% 11%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
 
     --radius: 0.75rem;
 
-    /* Gradientes/Sombras sutis para light */
-    --gradient-hero: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(210 40% 98%) 60%, hsl(221.2 83.2% 53.3% / 0.08) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100% / 0.9) 0%, hsl(210 40% 98% / 0.9) 100%);
-    --gradient-primary: linear-gradient(135deg, hsl(221.2 83.2% 53.3%) 0%, hsl(221.2 83.2% 63.3%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(210 40% 96.1%) 0%, hsl(214.3 31.8% 91.4%) 100%);
+    /* Gradientes/Sombras leves e consistentes */
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(220 14% 97%) 60%, hsl(221 83% 53% / 0.08) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(220 14% 98%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(221 83% 53%) 0%, hsl(221 83% 60%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(220 14% 96%) 0%, hsl(214 32% 91%) 100%);
 
-    --shadow-medical: 0 8px 24px hsl(222.2 47.4% 11.2% / 0.08);
-    --shadow-glow: 0 0 40px hsl(221.2 83.2% 53.3% / 0.15);
-    --shadow-card: 0 4px 18px hsl(222.2 47.4% 11.2% / 0.06);
+    --shadow-medical: 0 10px 24px hsl(222 47% 11% / 0.06);
+    --shadow-glow: 0 0 36px hsl(221 83% 53% / 0.18);
+    --shadow-card: 0 6px 18px hsl(222 47% 11% / 0.05);
 
     --transition-medical: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-glow: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Sidebar (light) */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 221 83% 53%;
   }
 
   .dark {
-    /* Dark estilo Binance */
-    --background: 214 22% 6%; /* ~ #0b0e11 */
-    --foreground: 210 14% 92%; /* texto claro */
+    /* Dark refinado (background antracito, texto claro, amarelo de ênfase) */
+    --background: 222 28% 7%;          /* #0b1220 aprox */
+    --foreground: 210 20% 96%;
 
-    --card: 214 22% 8%;
-    --card-foreground: 210 14% 92%;
+    --card: 222 28% 9%;
+    --card-foreground: 210 20% 96%;
 
-    --popover: 214 22% 8%;
-    --popover-foreground: 210 14% 92%;
+    --popover: 222 28% 9%;
+    --popover-foreground: 210 20% 96%;
 
-    --primary: 48 95% 52%; /* amarelo Binance */
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --primary-glow: 48 95% 60%;
+    --primary: 48 94% 54%;             /* amarelo profissional, mais sóbrio */
+    --primary-foreground: 230 35% 12%;
+    --primary-glow: 48 94% 60%;
 
-    --secondary: 215 16% 20%;
-    --secondary-foreground: 210 14% 92%;
+    --secondary: 220 18% 16%;
+    --secondary-foreground: 210 20% 96%;
 
-    --muted: 215 16% 14%;
-    --muted-foreground: 215 12% 65%;
+    --muted: 220 18% 14%;
+    --muted-foreground: 220 12% 70%;
 
-    --accent: 215 16% 18%;
-    --accent-foreground: 210 14% 92%;
+    --accent: 221 83% 56%;             /* azul para links/ações secundárias */
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 215 16% 18%;
-    --input: 215 16% 18%;
-    --ring: 48 95% 52%;
+    --border: 220 18% 20%;
+    --input: 220 18% 20%;
+    --ring: 48 94% 54%;
 
-    --sidebar-background: 214 22% 8%;
-    --sidebar-foreground: 210 14% 92%;
-    --sidebar-primary: 48 95% 52%;
-    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
-    --sidebar-accent: 215 16% 14%;
-    --sidebar-accent-foreground: 210 14% 92%;
-    --sidebar-border: 215 16% 18%;
-    --sidebar-ring: 48 95% 52%;
+    --sidebar-background: 222 28% 9%;
+    --sidebar-foreground: 210 20% 96%;
+    --sidebar-primary: 48 94% 54%;
+    --sidebar-primary-foreground: 230 35% 12%;
+    --sidebar-accent: 220 18% 16%;
+    --sidebar-accent-foreground: 210 20% 96%;
+    --sidebar-border: 220 18% 20%;
+    --sidebar-ring: 48 94% 54%;
   }
 }
 
