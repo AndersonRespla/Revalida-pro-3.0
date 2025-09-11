@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getSupabaseAdmin } from '../_supabase';
+import { getSupabaseAdmin } from '../_supabase.js';
 
 // Dicionário de normalização de exames médicos [[memory:8633458]]
 const EXAM_NORMALIZATIONS: Record<string, string[]> = {

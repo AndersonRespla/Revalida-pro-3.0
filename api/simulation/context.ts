@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getSupabaseAdmin } from '../_supabase';
+import { getSupabaseAdmin } from '../_supabase.js';
 
 interface StationContext {
   station_number: number;

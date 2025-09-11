@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getSupabaseAdmin } from '../_supabase';
-import { withTimeout, timeoutPresets } from '../../lib/timeout-utils';
-import { circuitBreakers } from '../../lib/circuit-breaker';
+import { getSupabaseAdmin } from '../_supabase.js';
+import { withTimeout, timeoutPresets } from '../../lib/timeout-utils.js';
+import { circuitBreakers } from '../../lib/circuit-breaker.js';
 
 interface FeedbackRequest {
   simulationId: string;

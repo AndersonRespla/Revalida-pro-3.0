@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getSupabaseAdmin } from '../_supabase';
-import { circuitBreakers } from '../../lib/circuit-breaker';
-import { withTimeoutAndRetry, isRetryableError, timeoutPresets } from '../../lib/timeout-utils';
+import { getSupabaseAdmin } from '../_supabase.js';
+import { circuitBreakers } from '../../lib/circuit-breaker.js';
+import { withTimeoutAndRetry, isRetryableError, timeoutPresets } from '../../lib/timeout-utils.js';
 
 interface HandoffRequest {
   simulationId: string;
