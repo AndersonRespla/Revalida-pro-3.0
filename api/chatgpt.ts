@@ -1,7 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { OpenAI } from 'openai';
 
-const apiKey = process.env.OPENAI_API_KEY;
+const apiKey = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -14,13 +14,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const openai = new OpenAI({ apiKey });
 
   try {
-    const { message, conversationHistory = [] } = req.body;
+    const payload = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+    const { message, conversationHistory = [] } = payload as { message?: string; conversationHistory?: Array<{ role: string; content: string }>; };
 
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    // Construir histórico da conversa
+    // Construir histórico da conversa (sanitizado e truncado)
+    const history = Array.isArray(conversationHistory)
+      ? conversationHistory
+          .filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+          .slice(-10)
+      : [];
+
     const messages = [
       {
         role: 'system' as const,
@@ -29,7 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         Sempre mencione quando uma informação é específica para o contexto brasileiro.
         Se não tiver certeza sobre algo, seja honesto e sugira consultar fontes oficiais.`
       },
-      ...conversationHistory,
+      ...history,
       {
         role: 'user' as const,
         content: message

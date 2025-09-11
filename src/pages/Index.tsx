@@ -382,7 +382,7 @@ const Index = () => {
             <Button size="lg" variant="medical" onClick={handlePrimaryCta}>
               Solicitar acesso beta
             </Button>
-          </div>
+      </div>
         </section>
 
         {/* JSON-LD */}

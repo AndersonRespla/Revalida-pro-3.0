@@ -22,9 +22,40 @@ export default function SimulationLanding() {
     localStorage.setItem('hasSeenInitialOnboarding', 'true');
   };
 
-  const handleModeSelect = (mode: 'exam' | 'study' | 'hybrid') => {
+  const handleModeSelect = async (mode: 'exam' | 'study' | 'hybrid') => {
     if (mode === 'exam') {
-      navigate('/simulation/exam');
+      // Para modo exame, criar simulação com 5 estações aleatórias
+      try {
+        console.log('🎯 Criando simulação com 5 estações aleatórias...');
+        
+        const response = await fetch('/api/simulation/run', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Erro ao criar simulação');
+        }
+
+        const data = await response.json();
+        
+        if (data.ok) {
+          console.log('✅ Simulação criada:', data.simulationId);
+          console.log('📋 Estações sorteadas:', data.stations.map((s: any) => `${s.code} - ${s.name}`));
+          
+          // Navegar para a simulação com o ID gerado
+          navigate(`/simulation/exam?simulationId=${data.simulationId}`);
+        } else {
+          throw new Error(data.message || 'Erro ao criar simulação');
+        }
+        
+      } catch (error) {
+        console.error('❌ Erro ao criar simulação:', error);
+        // Fallback: navegar sem simulação pré-criada
+        navigate('/simulation/exam');
+      }
     } else if (mode === 'study') {
       navigate('/simulation/study');
     } else if (mode === 'hybrid') {

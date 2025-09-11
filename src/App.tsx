@@ -12,6 +12,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const SimulationLanding = lazy(() => import("./pages/SimulationLanding"));
 const SimulationExam = lazy(() => import("./pages/SimulationExam"));
 const SimulationStudy = lazy(() => import("./pages/SimulationStudy"));
+const SimulationTest = lazy(() => import("./pages/SimulationTest"));
 const HybridLobby = lazy(() => import("./pages/HybridLobby"));
 const HybridMode = lazy(() => import("./pages/HybridMode"));
 const Stations = lazy(() => import("./pages/Stations"));
@@ -72,6 +73,7 @@ function AppContent() {
             <Route path="/simulation" element={<SimulationLanding />} />
             <Route path="/simulation/exam" element={<SimulationExam />} />
             <Route path="/simulation/study" element={<SimulationStudy />} />
+            <Route path="/simulation/test" element={<SimulationTest />} />
             <Route path="/simulation/hybrid" element={<HybridLobby />} />
             <Route path="/simulation/hybrid/sim/:code" element={<HybridMode />} />
             <Route path="/stations" element={<Stations />} />

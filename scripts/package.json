@@ -1,0 +1,31 @@
+{
+  "name": "osce-simulation-runner",
+  "version": "1.0.0",
+  "description": "Script para simulação OSCE com ElevenLabs Conversational AI",
+  "main": "simulation-runner.js",
+  "scripts": {
+    "start": "node simulation-runner.js",
+    "dev": "nodemon simulation-runner.js",
+    "test": "echo \"Testes não implementados\" && exit 0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "osce",
+    "medical",
+    "simulation",
+    "elevenlabs",
+    "supabase",
+    "conversational-ai"
+  ],
+  "author": "Revalida Pro Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

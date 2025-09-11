@@ -17,6 +17,18 @@
     },
     "api/audio/chunk.ts": {
       "maxDuration": 10
+    },
+    "api/simulation/run.ts": {
+      "maxDuration": 30
+    },
+    "api/simulation/load.ts": {
+      "maxDuration": 10
+    },
+    "api/voice-commands/detect.ts": {
+      "maxDuration": 30
+    },
+    "api/exams/release.ts": {
+      "maxDuration": 10
     }
   },
   "rewrites": [

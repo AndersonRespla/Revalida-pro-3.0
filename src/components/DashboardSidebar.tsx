@@ -31,6 +31,7 @@ const navigationItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Estações OSCE", url: "/stations", icon: Stethoscope },
   { title: "IA Independente", url: "/simulation", icon: Brain },
+  { title: "Teste Simulação", url: "/simulation/test", icon: Sparkles },
   { title: "ChatGPT", url: "/dashboard/chatgpt", icon: MessageSquare },
   { title: "Colaborativo", url: "/dashboard/collaborative", icon: Users },
   { title: "Modo Híbrido", url: "/simulation/hybrid", icon: Zap },

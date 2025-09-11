@@ -1,9 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { OnboardingModal, examOnboardingSteps } from "@/components/OnboardingModal";
 import { BackButton } from "@/components/BackButton";
+import { SimulationProgress } from "@/components/SimulationProgress";
+import { SimulationFeedback } from "@/components/SimulationFeedback";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Mic, MicOff, Phone } from "lucide-react";
 
 const TEN_MINUTES = 10 * 60;
 const TOTAL_STATIONS = 5;
@@ -16,14 +21,31 @@ function generateSimulationId(): string {
   return 'sim-' + Date.now();
 }
 
+interface StationData {
+  id: string;
+  name: string;
+  specialty: string;
+  code: string;
+  participant_info: string;
+  actor_info: string;
+  available_exams: string;
+  difficulty_level: string;
+  estimated_duration: number;
+}
+
 export default function SimulationExam() {
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState<"idle" | "running" | "finished">("idle");
   const [secondsLeft, setSecondsLeft] = useState<number>(TEN_MINUTES);
   const [currentStation, setCurrentStation] = useState<number>(1);
   const [finalFeedback, setFinalFeedback] = useState<string>("");
-  const [simulationId] = useState<string>(() => generateSimulationId());
+  const [simulationId] = useState<string>(() => searchParams.get('simulationId') || generateSimulationId());
   const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [selectedStations, setSelectedStations] = useState<StationData[]>([]);
+  const [isLoadingStations, setIsLoadingStations] = useState<boolean>(false);
+  const [moderatorContext, setModeratorContext] = useState<any>(null);
+  const [publicContext, setPublicContext] = useState<any>(null);
 
   const intervalRef = useRef<number | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -32,6 +54,19 @@ export default function SimulationExam() {
 
   const progress = useMemo(() => ((TEN_MINUTES - secondsLeft) / TEN_MINUTES) * 100, [secondsLeft]);
 
+  // Carregar estações se não vieram da URL
+  useEffect(() => {
+    const urlSimulationId = searchParams.get('simulationId');
+    
+    if (!urlSimulationId) {
+      // Se não há simulationId na URL, criar nova simulação
+      loadRandomStations();
+    } else {
+      // Se há simulationId, carregar estações existentes
+      loadExistingSimulation(urlSimulationId);
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     // Mostrar onboarding na primeira visita ao modo exame
     const hasSeenExamOnboarding = localStorage.getItem('hasSeenExamOnboarding');
@@ -39,6 +74,112 @@ export default function SimulationExam() {
       setShowOnboarding(true);
     }
   }, []);
+
+  const loadRandomStations = async () => {
+    setIsLoadingStations(true);
+    try {
+      console.log('🎯 Carregando estações aleatórias...');
+      
+      const response = await fetch('/api/simulation/run', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao carregar estações');
+      }
+
+      const data = await response.json();
+      
+      if (data.ok) {
+        console.log('✅ Estações carregadas:', data.stations.map((s: StationData) => `${s.code} - ${s.name}`));
+        setSelectedStations(data.stations);
+        
+        // Gerar contexto privado para o moderador
+        await generateModeratorContext(data.simulationId);
+      } else {
+        throw new Error(data.message || 'Erro ao carregar estações');
+      }
+      
+    } catch (error) {
+      console.error('❌ Erro ao carregar estações:', error);
+      // Fallback: usar estações mockadas
+      setSelectedStations([]);
+    } finally {
+      setIsLoadingStations(false);
+    }
+  };
+
+  const loadExistingSimulation = async (simId: string) => {
+    setIsLoadingStations(true);
+    try {
+      console.log('📋 Carregando simulação existente:', simId);
+      
+      const response = await fetch(`/api/simulation/load?simulationId=${encodeURIComponent(simId)}`);
+      
+      if (!response.ok) {
+        throw new Error('Erro ao carregar simulação');
+      }
+
+      const data = await response.json();
+      
+      if (data.ok) {
+        console.log('✅ Simulação carregada:', data.simulationId);
+        console.log('📋 Estações:', data.stations.map((s: StationData) => `${s.code} - ${s.name}`));
+        setSelectedStations(data.stations);
+        
+        // Atualizar estado da simulação se necessário
+        if (data.simulation.current_station) {
+          setCurrentStation(data.simulation.current_station);
+        }
+        
+        // Gerar contexto privado para o moderador
+        await generateModeratorContext(simId);
+      } else {
+        throw new Error(data.message || 'Erro ao carregar simulação');
+      }
+      
+    } catch (error) {
+      console.error('❌ Erro ao carregar simulação existente:', error);
+      // Fallback: carregar estações aleatórias
+      await loadRandomStations();
+    } finally {
+      setIsLoadingStations(false);
+    }
+  };
+
+  const generateModeratorContext = async (simId: string) => {
+    try {
+      console.log('🧠 Gerando contexto privado para o moderador...');
+      
+      const response = await fetch('/api/simulation/context', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ simulationId: simId }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao gerar contexto');
+      }
+
+      const data = await response.json();
+      
+      if (data.ok) {
+        console.log('✅ Contexto privado gerado');
+        setModeratorContext(data.context);
+        setPublicContext(data.publicContext);
+      } else {
+        throw new Error(data.message || 'Erro ao gerar contexto');
+      }
+      
+    } catch (error) {
+      console.error('❌ Erro ao gerar contexto:', error);
+    }
+  };
 
   const handleOnboardingClose = () => {
     setShowOnboarding(false);
@@ -207,90 +348,135 @@ export default function SimulationExam() {
         <div className="flex items-center justify-between mb-6">
           <BackButton className="mr-4" />
           <div className="flex-1">
-            <h1 className="text-xl font-bold">Simulação do Dia da Prova</h1>
-            <p className="text-sm text-muted-foreground">Estação {currentStation} de {TOTAL_STATIONS} • {step === "running" ? "Em andamento" : "Preparação"}</p>
+            <h1 className="text-2xl font-bold">Simulação OSCE</h1>
+            <p className="text-sm text-muted-foreground">
+              Modo Dia da Prova - 5 Estações Completas
+            </p>
           </div>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowOnboarding(true)}
-            className="text-xs"
           >
             Ver Tutorial
           </Button>
-          {step === "running" && (
-            <div className="text-right">
-              <div className="text-2xl font-bold text-primary">{formatTime(secondsLeft)}</div>
-              <div className="text-xs text-muted-foreground">Tempo restante</div>
-            </div>
-          )}
         </div>
 
-        <Card className="p-4 md:p-6">
-          <div className="mb-6">
-            <elevenlabs-convai agent-id={EXAM_AGENT_ID} position="inline" />
-          </div>
-
-          {step === "running" && (
-            <div className="space-y-2 mb-6">
-              <Progress value={progress} />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>0-3 min: Anamnese + Exame físico</span>
-                <span>3-7 min: Hipóteses e Condutas</span>
-                <span>7-10 min: Finalização</span>
-              </div>
-              <div className="flex justify-center mt-4">
-                <Button onClick={handleEndConsultation} variant="outline" size="sm" className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground">
-                  Encerrar Consulta
-                </Button>
-              </div>
+        {step !== "finished" ? (
+          <>
+            {/* Progress Card */}
+            <div className="mb-6">
+              <SimulationProgress
+                currentStation={currentStation}
+                totalStations={TOTAL_STATIONS}
+                secondsLeft={secondsLeft}
+                status={step}
+                stationSpecialty={publicContext?.stations?.[currentStation - 1]?.specialty}
+              />
             </div>
-          )}
 
-          <AgentEventsListener 
-            onPatientHandoff={async () => {
-              if (step !== 'running') {
-                setStep('running');
-                setSecondsLeft(TEN_MINUTES);
-                try { await startRecordingForStation(currentStation); } catch {}
-              }
-            }}
-            onStationComplete={handleStationComplete}
-            onModeratorReturn={handleModeratorReturn}
-          />
-
-          {step === "idle" && (
-            <div className="mt-6 text-center">
-              <Button onClick={handleStartTreatment} variant="medical" size="lg" className="px-8 py-3">
-                Iniciar Atendimento
-              </Button>
-            </div>
-          )}
-
-          {step === "running" && isTranscribing && (
-            <div className="text-center text-xs text-muted-foreground">Transcrevendo...</div>
-          )}
-
-          {step === "finished" && (
-            <div className="mt-6 text-center">
+            {/* Main Interaction Card */}
+            <Card className="p-4 md:p-6">
               <div className="mb-6">
-                <h3 className="text-2xl font-bold text-primary mb-2">🎉 Simulação Concluída!</h3>
-                <p className="text-muted-foreground">Você completou todas as {TOTAL_STATIONS} estações. Parabéns!</p>
+                {isLoadingStations ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                    <p className="mt-2 text-sm text-muted-foreground">Preparando simulação...</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="mb-4">
+                      <Alert>
+                        <Phone className="h-4 w-4" />
+                        <AlertDescription>
+                          {step === "idle" 
+                            ? "Clique em 'Iniciar Atendimento' quando estiver pronto para começar."
+                            : "Converse naturalmente com o paciente. O tempo é controlado automaticamente."}
+                        </AlertDescription>
+                      </Alert>
+                    </div>
+                    
+                    <elevenlabs-convai 
+                      agent-id={EXAM_AGENT_ID} 
+                      position="inline"
+                      moderator-context={moderatorContext ? JSON.stringify(moderatorContext) : ''}
+                      current-station={currentStation.toString()}
+                      simulation-id={simulationId}
+                    />
+                    
+                    {step === "running" && (
+                      <div className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                        <Mic className="h-4 w-4 animate-pulse text-red-500" />
+                        <span>Gravação em andamento</span>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
-              {!!finalFeedback && (
-                <div className="text-left max-w-3xl mx-auto mb-6 p-4 border border-border rounded-lg">
-                  <style>{`.ok{color:#16a34a;font-weight:600}.miss{color:#dc2626;font-weight:600}`}</style>
-                  <h4 className="font-semibold mb-2">Feedback consolidado</h4>
-                  <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: finalFeedback }} />
+
+              <AgentEventsListener 
+                onPatientHandoff={async () => {
+                  if (step !== 'running') {
+                    setStep('running');
+                    setSecondsLeft(TEN_MINUTES);
+                    try { await startRecordingForStation(currentStation); } catch {}
+                  }
+                }}
+                onStationComplete={handleStationComplete}
+                onModeratorReturn={handleModeratorReturn}
+              />
+
+              {/* Action Buttons */}
+              <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+                {step === "idle" && (
+                  <Button 
+                    onClick={handleStartTreatment} 
+                    variant="default" 
+                    size="lg" 
+                    className="px-8"
+                  >
+                    <Phone className="h-4 w-4 mr-2" />
+                    Iniciar Atendimento
+                  </Button>
+                )}
+                
+                {step === "running" && (
+                  <>
+                    <Button 
+                      variant="outline" 
+                      size="lg"
+                      disabled
+                    >
+                      <Mic className="h-4 w-4 mr-2" />
+                      Solicitar Exame
+                    </Button>
+                    <Button 
+                      onClick={handleEndConsultation} 
+                      variant="destructive" 
+                      size="lg"
+                    >
+                      Encerrar Consulta
+                    </Button>
+                  </>
+                )}
+              </div>
+
+              {step === "running" && isTranscribing && (
+                <div className="mt-4 text-center text-sm text-muted-foreground">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mx-auto mb-2"></div>
+                  Processando áudio...
                 </div>
               )}
-              <div className="space-y-2">
-                <Button onClick={() => window.location.reload()} variant="medical">Nova Simulação</Button>
-                <Button onClick={() => window.location.href = '/dashboard'} variant="outline">Voltar ao Dashboard</Button>
-              </div>
-            </div>
-          )}
-        </Card>
+            </Card>
+          </>
+        ) : (
+          /* Feedback Screen */
+          <SimulationFeedback
+            simulationId={simulationId}
+            onNewSimulation={() => window.location.reload()}
+            onReturnToDashboard={() => window.location.href = '/dashboard'}
+          />
+        )}
 
         <OnboardingModal
           isOpen={showOnboarding}

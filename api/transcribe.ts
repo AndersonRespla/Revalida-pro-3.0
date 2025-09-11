@@ -53,14 +53,51 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const json: any = await resp.json();
     const text = String(json?.text || '');
 
-    // Registrar transcrição em tabela (MVP) se existir tabela transcripts(simulation_id text, station int, transcript text, audio_path text)
+    // Buscar critérios da estação atual
+    let criteria = [];
     try {
-      await supabase.from('transcripts').insert({ simulation_id: simulationId, station, transcript: text, audio_path: `${bucket}/${path}` });
+      const { data: simulationData } = await supabase
+        .from('simulation_stations')
+        .select(`
+          *,
+          station:stations!station_id (
+            *,
+            criteria:station_criteria (*)
+          )
+        `)
+        .eq('simulation_id', simulationId)
+        .eq('station_order', station)
+        .single();
+        
+      if (simulationData?.station?.criteria) {
+        criteria = simulationData.station.criteria;
+      }
+    } catch (error) {
+      console.log('Could not fetch station criteria:', error);
+    }
+
+    // Registrar transcrição com critérios vinculados
+    try {
+      await supabase.from('transcripts').insert({ 
+        simulation_id: simulationId, 
+        station, 
+        transcript: text, 
+        audio_path: `${bucket}/${path}`,
+        criteria_ids: criteria.map((c: any) => c.id),
+        language: 'pt'
+      });
     } catch (error) {
       console.log('Transcript table not available:', error);
     }
 
-    res.status(200).json({ ok: true, transcript: text, simulationId, station, audioPath: `${bucket}/${path}` });
+    res.status(200).json({ 
+      ok: true, 
+      transcript: text, 
+      simulationId, 
+      station, 
+      audioPath: `${bucket}/${path}`,
+      criteria: criteria.map((c: any) => ({ id: c.id, name: c.name, weight: c.weight }))
+    });
   } catch (e: any) {
     res.status(500).json({ ok: false, error: 'server_error', detail: String(e?.message || e) });
   }

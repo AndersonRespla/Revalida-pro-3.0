@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -14,6 +15,7 @@ function generateSimulationId(): string {
 }
 
 export default function Simulation() {
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState<"idle" | "running" | "finished">("idle");
   const [secondsLeft, setSecondsLeft] = useState<number>(TEN_MINUTES);
   const [currentStation, setCurrentStation] = useState<number>(1);
@@ -21,11 +23,14 @@ export default function Simulation() {
   const [transcripts, setTranscripts] = useState<Record<number, string>>({});
   const [simulationId] = useState<string>(() => generateSimulationId());
   const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
+  const [stationId] = useState<string>(() => searchParams.get('stationId') || '');
+  const [requestedExams, setRequestedExams] = useState<Array<{ name: string }>>([]);
 
   const intervalRef = useRef<number | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordingIdRef = useRef<string | null>(null);
   const audioStreamRef = useRef<MediaStream | null>(null);
+  const chunkCounterRef = useRef<number>(0);
 
   const progress = useMemo(() => ((TEN_MINUTES - secondsLeft) / TEN_MINUTES) * 100, [secondsLeft]);
 
@@ -67,6 +72,33 @@ export default function Simulation() {
             method: 'POST',
             body: evt.data
           });
+        }
+
+        // A cada 3 chunks, tenta detectar comando de voz "Solicito <exame>"
+        try {
+          chunkCounterRef.current += 1;
+          if (chunkCounterRef.current % 3 === 0 && stationId) {
+            const resp = await fetch(`/api/voice-commands/detect?stationId=${encodeURIComponent(stationId)}&simulationId=${encodeURIComponent(simulationId)}`, {
+              method: 'POST',
+              body: evt.data
+            });
+            const dj = await resp.json().catch(() => null);
+            if (dj?.ok && dj?.detected && dj?.matched && dj?.examName) {
+              const exists = requestedExams.some(e => e.name.toLowerCase() === String(dj.examName).toLowerCase());
+              if (!exists) {
+                setRequestedExams(prev => [...prev, { name: dj.examName }]);
+                notifyAgent('exam_released', { station: currentStation, examName: dj.examName });
+                // Registrar liberação (idempotente; detect já tenta registrar também)
+                fetch('/api/exams/release', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ simulationId, stationId, examName: dj.examName, source: 'voice' })
+                }).catch(() => {});
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Erro na detecção/liberação de exame por voz:', err);
         }
       } catch (e) {
         console.error('Erro ao enviar chunk de áudio:', e);
