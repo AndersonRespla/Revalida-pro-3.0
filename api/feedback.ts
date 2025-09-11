@@ -6,9 +6,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   
   // Route to appropriate handler based on URL path
   if (url?.includes('/generate')) {
-    return require('./feedback/generate.js').default(req, res);
+    return require('../server/feedback/generate.js').default(req, res);
   } else if (url?.includes('/get')) {
-    return require('./feedback/get.js').default(req, res);
+    return require('../server/feedback/get.js').default(req, res);
   }
   
   return res.status(404).json({ error: 'Not found' });

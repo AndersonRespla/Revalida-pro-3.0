@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import { getSupabaseAdmin } from '../../server/_supabase.js'
+import { getSupabaseAdmin } from '../_supabase.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -19,14 +19,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const supabase = getSupabaseAdmin()
 
-    // Criar usuário no Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
       password,
       user_metadata: {
         full_name: fullName
       },
-      email_confirm: true // Auto-confirmar email para desenvolvimento
+      email_confirm: true
     })
 
     if (authError) {
@@ -38,7 +37,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       })
     }
 
-    // Criar perfil do usuário na tabela profiles
     const { error: profileError } = await supabase
       .from('profiles')
       .insert({
@@ -50,7 +48,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (profileError) {
       console.error('Erro ao criar perfil:', profileError)
-      // Não falhar aqui, pois o usuário já foi criado no auth
     }
 
     return res.status(200).json({
@@ -71,3 +68,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     })
   }
 }
+
+

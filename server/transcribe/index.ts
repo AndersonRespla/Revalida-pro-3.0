@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getSupabaseAdmin } from '../../server/_supabase.js';
+import { getSupabaseAdmin } from '../_supabase.js';
 
 async function readBuffer(req: VercelRequest): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -26,7 +26,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // Verificar se o áudio foi enviado
     const audioBuffer = await readBuffer(req);
     if (audioBuffer.length === 0) {
       return res.status(400).json({ 
@@ -36,7 +35,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // Buscar critérios da estação
     const supabase = getSupabaseAdmin();
     const { data: criteriaData, error: criteriaError } = await supabase
       .from('station_criteria')
@@ -54,7 +52,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const criteriaIds = criteriaData?.map(c => c.id) || [];
 
-    // Chamar OpenAI Whisper para transcrição
     const formData = new FormData();
     const audioBlob = new Blob([audioBuffer], { type: 'audio/webm' });
     formData.append('file', audioBlob, 'audio.webm');
@@ -82,7 +79,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const transcriptionResult = await whisperResponse.json();
     const transcript = transcriptionResult.text;
 
-    // Salvar transcrição no banco
     const { data: transcriptData, error: transcriptError } = await supabase
       .from('transcripts')
       .insert({
@@ -99,17 +95,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (transcriptError) {
       console.error('Erro ao salvar transcrição:', transcriptError);
-      return res.status(500).json({ 
-        ok: false, 
-        error: 'database_error',
-        details: 'Erro ao salvar transcrição no banco'
-      });
     }
 
     return res.status(200).json({
       ok: true,
       transcript: transcript,
-      transcriptId: transcriptData.id,
+      transcriptId: transcriptData?.id,
       criteria: criteriaData || []
     });
 
@@ -122,3 +113,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 }
+
+

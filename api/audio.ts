@@ -6,11 +6,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   
   // Route to appropriate handler based on URL path
   if (url?.includes('/start')) {
-    return require('./audio/start.js').default(req, res);
+    return require('../server/audio/start.js').default(req, res);
   } else if (url?.includes('/finish')) {
-    return require('./audio/finish.js').default(req, res);
+    return require('../server/audio/finish.js').default(req, res);
   } else if (url?.includes('/chunk')) {
-    return require('./audio/chunk.js').default(req, res);
+    return require('../server/audio/chunk.js').default(req, res);
   }
   
   return res.status(404).json({ error: 'Not found' });
