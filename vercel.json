@@ -1,33 +1,30 @@
 {
   "functions": {
-    "api/transcribe.ts": {
+    "api/consolidated.ts": {
       "maxDuration": 30
+    },
+    "api/simulation.ts": {
+      "maxDuration": 30
+    },
+    "api/audio.ts": {
+      "maxDuration": 10
     },
     "api/feedback.ts": {
       "maxDuration": 30
     },
-    "api/chatgpt.ts": {
+    "api/exams.ts": {
+      "maxDuration": 10
+    },
+    "api/voice-commands.ts": {
       "maxDuration": 30
+    },
+    "api/simulations.ts": {
+      "maxDuration": 10
     },
     "api/chatgpt-web.ts": {
       "maxDuration": 30
     },
-    "api/audio/start.ts": {
-      "maxDuration": 10
-    },
-    "api/audio/chunk.ts": {
-      "maxDuration": 10
-    },
-    "api/simulation/run.ts": {
-      "maxDuration": 30
-    },
-    "api/simulation/load.ts": {
-      "maxDuration": 10
-    },
-    "api/voice-commands/detect.ts": {
-      "maxDuration": 30
-    },
-    "api/exams/release.ts": {
+    "api/env-check.ts": {
       "maxDuration": 10
     }
   },
