@@ -16,7 +16,7 @@ import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function Settings() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
 
@@ -176,7 +176,19 @@ export default function Settings() {
                           <Input type="password" placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} disabled={disabled} />
                         </div>
                       </div>
-                      <div className="flex justify-end">
+                      <div className="flex justify-between items-center">
+                        <Button 
+                          variant="destructive" 
+                          onClick={async () => {
+                            if (confirm('Tem certeza que deseja sair da sua conta?')) {
+                              await signOut();
+                              window.location.href = '/';
+                            }
+                          }}
+                          disabled={disabled}
+                        >
+                          Sair da Conta
+                        </Button>
                         <Button className="min-w-40" onClick={handleSaveAccount} disabled={disabled || savingAccount}>{savingAccount ? "Salvando..." : "Salvar Alterações"}</Button>
                       </div>
                     </CardContent>
