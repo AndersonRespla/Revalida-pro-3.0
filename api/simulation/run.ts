@@ -1,1 +1,0 @@
-export { default } from '../../server/simulation/run.js'

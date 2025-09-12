@@ -26,6 +26,15 @@
     },
     "api/env-check.ts": {
       "maxDuration": 10
+    },
+    "api/library.ts": {
+      "maxDuration": 10
+    },
+    "api/sessions.ts": {
+      "maxDuration": 10
+    },
+    "api/user.ts": {
+      "maxDuration": 10
     }
   },
   "rewrites": [
