@@ -1,3 +1,70 @@
-export { default } from '../../api/exams/release.js'
+import { VercelRequest, VercelResponse } from '@vercel/node';
+import { getSupabaseAdmin } from '../_supabase.js';
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'method_not_allowed' });
+
+  try {
+    const { simulationId, stationId, stationNumber, examName, source = 'system', confidence } = req.body as any;
+    if (!simulationId || !stationId || !examName) return res.status(400).json({ ok: false, error: 'missing_params' });
+
+    const supabase = getSupabaseAdmin();
+    try {
+      await supabase.from('simulation_exams' as any).insert({
+        simulation_id: simulationId,
+        station_id: stationId,
+        exam_name: examName,
+        source: source || 'system',
+        released_at: new Date().toISOString(),
+      });
+    } catch {}
+
+    const { data: station, error } = await supabase
+      .from('stations' as any)
+      .select('id, name, available_exams, checklist')
+      .eq('id', stationId)
+      .single();
+    if (error || !station) return res.status(404).json({ ok: false, error: 'station_not_found' });
+
+    const fromCsv = String(station.available_exams || '')
+      .split(',').map((s: string) => s.trim()).filter(Boolean)
+      .map((name: string) => ({ name, type: 'text', content: null }));
+    const fromChecklist = Array.isArray(station?.checklist?.exams)
+      ? station.checklist.exams.map((e: any) => ({
+          name: String(e?.name || '').trim(),
+          type: e?.type || 'text',
+          content: e?.content || null,
+          image_url: e?.image_url || null,
+        }))
+      : [];
+    const all = [...fromCsv, ...fromChecklist];
+    const found = all.find((e) => e.name.toLowerCase() === String(examName).toLowerCase() ||
+      e.name.toLowerCase().includes(String(examName).toLowerCase()) ||
+      String(examName).toLowerCase().includes(e.name.toLowerCase()));
+
+    await supabase.from('simulation_events').insert({
+      simulation_id: simulationId,
+      station_number: stationNumber,
+      event_type: 'exam_released',
+      event_data: {
+        exam_name: examName,
+        exam_type: found?.type || 'text',
+        source,
+        confidence,
+        has_content: !!found?.content,
+        has_image: !!found?.image_url,
+        station_name: station.name
+      }
+    });
+
+    return res.status(200).json({
+      ok: true,
+      exam: found || { name: examName, type: 'text', content: `Resultado do exame ${examName} não disponível no momento.` },
+      metadata: { source, confidence, timestamp: new Date().toISOString() }
+    });
+  } catch (e: any) {
+    return res.status(500).json({ ok: false, error: 'server_error', detail: String(e?.message || e) });
+  }
+}
 
 

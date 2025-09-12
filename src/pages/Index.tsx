@@ -385,6 +385,39 @@ const Index = () => {
       </div>
         </section>
 
+        {/* ELEVENLABS GRANTS BADGE */}
+        <section className="py-8">
+          <div className="container mx-auto px-6 flex justify-center">
+            <a
+              href="https://elevenlabs.io/text-to-speech"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="ElevenLabs Grants"
+            >
+              <img
+                src="https://storage.googleapis.com/eleven-public-cdn/images/elevenlabs-grants-logo.png"
+                alt="ElevenLabs Grants"
+                loading="lazy"
+                style={{ width: 250 }}
+              />
+            </a>
+          </div>
+        </section>
+
+        {/* FOOTER */}
+        <footer className="py-8 border-t border-border">
+          <div className="container mx-auto px-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="text-sm text-muted-foreground">
+                © 2024 Revalida Pro. Todos os direitos reservados.
+              </div>
+              <div className="text-sm text-muted-foreground">
+                CNPJ: 62.574.064/0001-53
+              </div>
+            </div>
+          </div>
+        </footer>
+
         {/* JSON-LD */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </main>
